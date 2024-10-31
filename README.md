@@ -2,7 +2,7 @@
 
 Atmosphere Analyzer is an innovative environmental monitoring system that simulates real-time sensor data with Python, seamlessly integrates AWS S3 for scalable data storage, and leverages AWS Lambda for on-the-fly data processing. The backend API, built with Django, serves environmental data to a dynamic, data-rich React frontend that visualizes key environmental metrics in an intuitive dashboard. This project is engineered to provide deep insights into environmental trends, supporting sustainable resource management through smart data visualization.
 
-![Python](https://img.shields.io/badge/Python-Python-blue) ![Django](https://img.shields.io/badge/Django-Django-green) ![AWS](https://img.shields.io/badge/AWS-Amazon%20Web%20Services-orange) ![AWS Lambda](https://img.shields.io/badge/AWS%20Lambda-AWS%20Lambda-yellow) ![AWS S3](https://img.shields.io/badge/AWS%20S3-AWS%20S3-lightblue) ![React](https://img.shields.io/badge/React-React-lightblue) ![Data Visualization](https://img.shields.io/badge/Data%20Visualization-Data%20Visualization-brightgreen) ![IoT](https://img.shields.io/badge/IoT-Internet%20of%20Things-yellow)
+![Python](https://img.shields.io/badge/Python-Programming%20Language-blue) ![Django](https://img.shields.io/badge/Django-Framework-green) ![AWS](https://img.shields.io/badge/AWS-Cloud%20Platform-orange) ![AWS Lambda](https://img.shields.io/badge/AWS%20Lambda-Serverless%20Computing-yellow) ![AWS S3](https://img.shields.io/badge/AWS%20S3-Object%20Storage-lightblue) ![React](https://img.shields.io/badge/React-Library-lightblue) ![Data Visualization](https://img.shields.io/badge/Data%20Visualization-Library-brightgreen) ![IoT](https://img.shields.io/badge/IoT-Concept-yellow)
 
 
 ## Table of Contents
