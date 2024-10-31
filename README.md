@@ -88,5 +88,5 @@ Atmosphere Analyzer enables real-time monitoring and visualization of environmen
 - **User Authentication**: Implement user management for secure, personalized data access.
 - **Expanded Sensor Metrics**: Add more simulated metrics like air quality and light levels.
 
-### Contact 🌐
+## Contact 🌐
 If you have any questions or feedback, feel free to reach out at [mrodr.contact@gmail.com](mailto:mrodr.contact@gmail.com).
