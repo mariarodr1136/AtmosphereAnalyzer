@@ -1,4 +1,4 @@
-# Atmosphere Analyzer: Smart Data Visualization Tool
+# Atmosphere Analyzer: Smart Data Visualization Tool 🌎📊
 
 Atmosphere Analyzer is an innovative environmental monitoring system that simulates real-time sensor data with Python, seamlessly integrates AWS S3 for scalable data storage, and leverages AWS Lambda for on-the-fly data processing. The backend API, built with Django, serves environmental data to a dynamic, data-rich React frontend that visualizes key environmental metrics in an intuitive dashboard. This project is engineered to provide deep insights into environmental trends, supporting sustainable resource management through smart data visualization.
 
@@ -24,7 +24,7 @@ Atmosphere Analyzer is an innovative environmental monitoring system that simula
 
 ---
 
-## Project Overview
+## Project Overview 
 Atmosphere Analyzer enables real-time monitoring and visualization of environmental metrics through a robust architecture that simulates, processes, and delivers data efficiently. Designed for scalability and insight-driven analytics, the system models sensor data to help users track environmental changes over time, providing actionable insights for data-driven decision-making.
 
 ## Architecture
