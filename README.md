@@ -29,19 +29,19 @@ Atmosphere Analyzer enables real-time monitoring and visualization of environmen
 
 ## Architecture
 
-1. **Data Simulation (Python)**: Simulated sensor data (e.g., temperature and humidity) mimics real-world readings.
-2. **Data Storage (AWS S3)**: Data is stored in an AWS S3 bucket, ensuring scalable, durable storage of environmental metrics.
-3. **Data Processing (AWS Lambda)**: AWS Lambda processes incoming data, enabling real-time processing with no server management.
-4. **Backend API (Django)**: The API organizes and serves data to the frontend, managing data access through RESTful endpoints.
-5. **Frontend Visualization (React)**: The React dashboard fetches and visualizes data in real-time, providing an interactive user experience.
+1. **Data Simulation (Python)**: Simulates sensor data (e.g., temperature, humidity) to mimic real-world readings.
+2. **Data Storage (AWS S3)**: Utilizes AWS S3 for scalable and durable storage of environmental metrics.
+3. **Data Processing (AWS Lambda)**: Processes incoming data using AWS Lambda, enabling real-time processing without server management.
+4. **Backend API (Django)**: Organizes and serves data to the frontend through RESTful endpoints, managing data access efficiently.
+5. **Frontend Visualization (React)**: The interactive React dashboard fetches and visualizes data in real-time, enhancing user engagement.
 
 ## Technologies
 
-- **Python**: Data simulation and Lambda processing
-- **AWS (S3, Lambda)**: Scalable storage and serverless data processing
-- **Django**: API creation and data management
-- **React**: Interactive data visualization
-- **Django REST Framework**: REST API endpoints for data access
+- **Python**: For data simulation and AWS Lambda processing.
+- **AWS (S3, Lambda)**: Provides scalable storage and serverless data processing capabilities.
+- **Django**: Facilitates API creation and data management.
+- **React**: Powers interactive data visualization.
+- **Django REST Framework**: Establishes REST API endpoints for seamless data access.
 
 ## Setup and Installation
 
@@ -75,7 +75,7 @@ Atmosphere Analyzer enables real-time monitoring and visualization of environmen
 ## Usage
 
 1. **Simulate Sensor Data**: Run the Python script to simulate data transmission to the Django API.
-2. **View Data on Dashboard**: Access the React dashboard to view real-time environmental metrics visualized from the API.
+2. **View Data on Dashboard**: Access the React dashboard to visualize real-time environmental metrics sourced from the API.
 
 ## Deployment
 
