@@ -58,17 +58,28 @@ Atmosphere Analyzer enables real-time monitoring and visualization of environmen
    ```bash
    git clone https://github.com/yourusername/atmosphere-analyzer.git
    cd atmosphere-analyzer
-2. Backend Setup (Django)
+2. **Backend Setup (Django)**
+- Navigate to the backend directory:
+   ```bash
+   cd backend
 - Install dependencies:
    ```bash
    pip install -r requirements.txt
 - Configure AWS S3 settings in Django.
-3. Frontend Setup (React)
-- Navigate to the frontend directory and install dependencies:
+- Start the Django Server:
+   ```bash
+   python manage.py runserver
+3. **Frontend Setup (React)**
+- Navigate to the frontend directory:
    ```bash
    cd frontend
+- Install dependencies:
+   ```bash
    npm install
-4. AWS Lambda Setup
+- Start the React development server:
+   ```bash
+   npm start
+4. **AWS Lambda Setup**
 - Create a Lambda function for data processing and configure it to store data in S3.
 
 ---
