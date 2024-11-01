@@ -18,9 +18,7 @@ Atmosphere Analyzer is an innovative environmental monitoring system that simula
 
 
 <img width="1466" alt="Screenshot 2024-10-31 at 5 24 10 PM" src="https://github.com/user-attachments/assets/c16511f9-5ec5-4c7b-8de1-17c4c1acde90">
-
-
-https://github.com/user-attachments/assets/4c8a8693-ebb0-4f83-892d-03498b00b783
+<img width="1463" alt="Screenshot 2024-10-31 at 5 24 18 PM" src="https://github.com/user-attachments/assets/b4f004e5-e9d0-4ad0-8db2-92c9446d2a7d">
 
 
 ---
@@ -81,6 +79,11 @@ Atmosphere Analyzer enables real-time monitoring and visualization of environmen
    npm start
 4. **AWS Lambda Setup**
 - Create a Lambda function for data processing and configure it to store data in S3.
+
+---
+
+https://github.com/user-attachments/assets/4c8a8693-ebb0-4f83-892d-03498b00b783
+
 
 ---
 
