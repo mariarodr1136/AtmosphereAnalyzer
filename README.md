@@ -13,6 +13,8 @@ Atmosphere Analyzer is an innovative environmental monitoring system that simula
 - [Usage](#usage)
 - [Deployment](#deployment)
 - [Future Enhancements](#future-enhancements)
+- [Contributing](#contributing)
+- [Contact](#contact-)
 
 ---
 
@@ -102,6 +104,27 @@ https://github.com/user-attachments/assets/4c8a8693-ebb0-4f83-892d-03498b00b783
 - **Advanced Data Analytics**: Integrate machine learning models to predict environmental trends.
 - **User Authentication**: Implement user management for secure, personalized data access.
 - **Expanded Sensor Metrics**: Add more simulated metrics like air quality and light levels.
+
+## Contributing
+Feel free to submit issues or pull requests for improvements or bug fixes. You can also open issues to discuss potential changes or enhancements. All contributions are welcome to enhance the app’s features or functionality!
+
+To contribute, please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix:
+   ```bash
+   git checkout -b feat/your-feature-name
+- Alternatively, for bug fixes:
+   ```bash
+   git checkout -b fix/your-bug-fix-name
+3. Make your changes and run all tests before committing the changes and make sure all tests are passed.
+4. After all tests are passed, commit your changes with descriptive messages:
+   ```bash
+   git commit -m 'add your commit message'
+5. Push your changes to your forked repository:
+   ```bash
+   git push origin feat/your-feature-name.
+6. Submit a pull request to the main repository, explaining your changes and providing any necessary details.
 
 ## Contact 🌐
 If you have any questions or feedback, feel free to reach out at [mrodr.contact@gmail.com](mailto:mrodr.contact@gmail.com).
