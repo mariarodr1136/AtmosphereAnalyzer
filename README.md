@@ -18,8 +18,9 @@ Atmosphere Analyzer is an innovative environmental monitoring system that simula
 
 
 <img width="1466" alt="Screenshot 2024-10-31 at 5 24 10 PM" src="https://github.com/user-attachments/assets/c16511f9-5ec5-4c7b-8de1-17c4c1acde90">
-<img width="1463" alt="Screenshot 2024-10-31 at 5 24 18 PM" src="https://github.com/user-attachments/assets/65095cc0-05ad-4b58-9561-f400323176c3">
 
+
+https://github.com/user-attachments/assets/4c8a8693-ebb0-4f83-892d-03498b00b783
 
 
 ---
