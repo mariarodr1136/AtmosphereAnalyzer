@@ -60,7 +60,7 @@ Atmosphere Analyzer enables real-time monitoring and visualization of environmen
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/<YOUR_GITHUB_USERNAME>/AtmosphereAnalyzer.git
+   git clone https://github.com/mariarodr1136/AtmosphereAnalyzer.git
    cd AtmosphereAnalyzer
 2. **Backend Setup (Django)**
 - Navigate to the backend directory:
