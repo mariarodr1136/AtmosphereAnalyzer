@@ -1,6 +1,6 @@
 # Atmosphere Analyzer: Smart Data Visualization Tool 🌎📊
 
-**Atmosphere Analyzer** is a comprehensive environmental monitoring system designed to simulate real-time sensor data using **Python**. It seamlessly integrates **AWS S3** for scalable and reliable data storage, while leveraging **AWS Lambda** for efficient, serverless data processing. The system's backend API, built with **Django**, organizes and serves environmental data through RESTful endpoints, ensuring robust data access. The frontend, developed with **React**, presents these metrics on an interactive dashboard, offering users a clear and intuitive visualization of environmental trends. 
+**Atmosphere Analyzer** is a comprehensive environmental monitoring system designed to simulate real-time sensor data using **Python**. It seamlessly integrates **AWS S3** for scalable and reliable data storage, while leveraging **AWS Lambda** for efficient, serverless data processing. The system's backend API, built with **Django**, organizes and serves environmental data through RESTful endpoints, ensuring robust data access. The frontend, developed with **React**, presents these metrics on an interactive dashboard, offering users a clear and intuitive visualization of environmental trends. The project is now deployment-ready, using **Render** to host the Django API and a static React build, with **Gunicorn**, **WhiteNoise**, and **CORS** configuration for production stability and cross-origin access. 
 
 This project empowers data-driven decision-making for sustainable resource management by delivering actionable insights through smart data visualization.
 
@@ -39,6 +39,7 @@ Atmosphere Analyzer enables real-time monitoring and visualization of environmen
 3. **Data Processing (AWS Lambda)**: Processes incoming data using AWS Lambda, enabling real-time processing without server management.
 4. **Backend API (Django)**: Organizes and serves data to the frontend through RESTful endpoints, managing data access efficiently.
 5. **Frontend Visualization (React)**: The interactive React dashboard fetches and visualizes data in real-time, enhancing user engagement.
+6. **Deployment (Render)**: Django runs with **Gunicorn**, static assets are served via **WhiteNoise**, and the React app is built and deployed as a static site with environment-based API configuration and CORS support.
 
 ## Technologies
 
@@ -47,6 +48,12 @@ Atmosphere Analyzer enables real-time monitoring and visualization of environmen
 - **Django**: Facilitates API creation and data management.
 - **React**: Powers interactive data visualization.
 - **Django REST Framework**: Establishes REST API endpoints for seamless data access.
+- **Render**: Hosts the Django API and the React static build for deployment.
+- **Gunicorn**: Production WSGI server for Django.
+- **WhiteNoise**: Serves static files in production for the Django backend.
+- **django-cors-headers**: Enables CORS configuration for the frontend-to-backend requests.
+- **Chart.js + react-chartjs-2**: Powers the dashboard visualizations.
+- **Axios**: Handles API requests from the React frontend.
 
 ## Setup and Installation
 
@@ -55,6 +62,7 @@ Atmosphere Analyzer enables real-time monitoring and visualization of environmen
 - **Python 3.x** and **Django** installed on your machine
 - **Node.js and npm** for the React frontend
 - **AWS CLI** configured with access to S3 and Lambda
+- (Optional for deployment) **Render** account and CLI or dashboard access
 
 ### Installation Steps
 
@@ -85,6 +93,9 @@ Atmosphere Analyzer enables real-time monitoring and visualization of environmen
    npm start
 4. **AWS Lambda Setup**
 - Create a Lambda function for data processing and configure it to store data in S3.
+5. **Render Deployment Setup (Optional)**
+- Configure environment variables for the backend (e.g., `DJANGO_SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS`) and for the frontend (`REACT_APP_API_URL`).
+- Use the provided `render.yaml` to deploy the Django API (Gunicorn + WhiteNoise) and the React static site.
 
 ---
 
@@ -100,8 +111,8 @@ https://github.com/user-attachments/assets/4c8a8693-ebb0-4f83-892d-03498b00b783
 
 ## Deployment
 
-- **Backend (Django)**: Deploy using AWS Elastic Beanstalk or EC2 for scalable hosting.
-- **Frontend (React)**: Deploy via AWS Amplify or S3 static site hosting for reliable frontend delivery.
+- **Backend (Django)**: Deploy on **Render** with Gunicorn and WhiteNoise, or use AWS Elastic Beanstalk / EC2 for scalable hosting.
+- **Frontend (React)**: Deploy the static build on **Render**, or use AWS Amplify / S3 static site hosting for reliable frontend delivery.
 
 ## Future Enhancements
 
