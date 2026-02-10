@@ -22,7 +22,6 @@ services:
     name: atmosphere-analyzer-dashboard
     runtime: static
     rootDir: atmosphere-analyzer/frontend
-    plan: free
     buildCommand: npm install && npm run build
     staticPublishPath: ./build
     envVars:
