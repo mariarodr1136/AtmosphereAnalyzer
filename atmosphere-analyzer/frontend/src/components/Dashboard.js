@@ -114,32 +114,34 @@ const Dashboard = () => {
                 <Line data={chartData} options={chartOptions} />
             </div>
 
-            <div className="current-readings">
-                <div className="reading-card temperature-card">
-                    <span className="reading-label">Temperature</span>
-                    <span className="reading-value">{latestTemp}<span className="reading-unit">{'\u00B0'}C</span></span>
-                </div>
-                <div className="reading-card humidity-card">
-                    <span className="reading-label">Humidity</span>
-                    <span className="reading-value">{latestHumidity}<span className="reading-unit">%</span></span>
-                </div>
-            </div>
-
-            <div className="stats-section">
-                <h3>Statistics</h3>
-                <p className="stats-note">{data.temperature.length} data points collected</p>
-                <div className="stats-grid">
-                    <div className="stats-card">
-                        <h4>Temperature ({'\u00B0'}C)</h4>
-                        <div className="stats-row"><span>Min</span><span>{tempStats.min}</span></div>
-                        <div className="stats-row"><span>Max</span><span>{tempStats.max}</span></div>
-                        <div className="stats-row"><span>Avg</span><span>{tempStats.avg}</span></div>
+            <div className="info-row">
+                <div className="current-readings">
+                    <div className="reading-card temperature-card">
+                        <span className="reading-label">Temperature</span>
+                        <span className="reading-value">{latestTemp}<span className="reading-unit">{'\u00B0'}C</span></span>
                     </div>
-                    <div className="stats-card">
-                        <h4>Humidity (%)</h4>
-                        <div className="stats-row"><span>Min</span><span>{humidityStats.min}</span></div>
-                        <div className="stats-row"><span>Max</span><span>{humidityStats.max}</span></div>
-                        <div className="stats-row"><span>Avg</span><span>{humidityStats.avg}</span></div>
+                    <div className="reading-card humidity-card">
+                        <span className="reading-label">Humidity</span>
+                        <span className="reading-value">{latestHumidity}<span className="reading-unit">%</span></span>
+                    </div>
+                </div>
+
+                <div className="stats-section">
+                    <h3>Statistics</h3>
+                    <p className="stats-note">{data.temperature.length} data points collected</p>
+                    <div className="stats-grid">
+                        <div className="stats-card">
+                            <h4>Temperature ({'\u00B0'}C)</h4>
+                            <div className="stats-row"><span>Min</span><span>{tempStats.min}</span></div>
+                            <div className="stats-row"><span>Max</span><span>{tempStats.max}</span></div>
+                            <div className="stats-row"><span>Avg</span><span>{tempStats.avg}</span></div>
+                        </div>
+                        <div className="stats-card">
+                            <h4>Humidity (%)</h4>
+                            <div className="stats-row"><span>Min</span><span>{humidityStats.min}</span></div>
+                            <div className="stats-row"><span>Max</span><span>{humidityStats.max}</span></div>
+                            <div className="stats-row"><span>Avg</span><span>{humidityStats.avg}</span></div>
+                        </div>
                     </div>
                 </div>
             </div>
