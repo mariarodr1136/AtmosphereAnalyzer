@@ -4,19 +4,25 @@
   margin: 0 auto;
 }
 
-/* Side-by-side layout for readings + stats */
-.info-row {
+/* Chart + readings side by side */
+.chart-row {
   display: flex;
-  gap: 30px;
-  align-items: flex-start;
-  margin-top: 30px;
+  gap: 20px;
+  align-items: stretch;
 }
 
-/* Current Readings Cards */
+.chart-container {
+  flex: 1;
+  height: 400px;
+  min-width: 0;
+}
+
+/* Current Readings Cards — right of chart */
 .current-readings {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  justify-content: center;
   flex-shrink: 0;
 }
 
@@ -24,9 +30,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px 40px;
+  padding: 20px 30px;
   border-radius: 12px;
-  min-width: 200px;
+  min-width: 170px;
   color: white;
 }
 
@@ -57,9 +63,10 @@
   margin-left: 2px;
 }
 
-/* Stats Section */
+/* Stats Section — centered below chart */
 .stats-section {
-  flex: 1;
+  margin-top: 30px;
+  text-align: center;
 }
 
 .stats-section h3 {
@@ -75,14 +82,16 @@
 
 .stats-grid {
   display: flex;
-  gap: 16px;
+  gap: 20px;
+  justify-content: center;
 }
 
 .stats-card {
   background: #f5f7fa;
   border-radius: 10px;
   padding: 16px 24px;
-  flex: 1;
+  min-width: 200px;
+  text-align: left;
 }
 
 .stats-card h4 {
@@ -105,9 +114,12 @@
 }
 
 @media (max-width: 700px) {
-  .info-row {
+  .chart-row {
     flex-direction: column;
-    align-items: stretch;
+  }
+
+  .chart-container {
+    height: 300px;
   }
 
   .current-readings {
@@ -117,6 +129,7 @@
 
   .stats-grid {
     flex-direction: column;
+    align-items: center;
   }
 
   .dashboard {
