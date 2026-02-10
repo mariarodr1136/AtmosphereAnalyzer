@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: atmosphere-analyzer-api
+    runtime: python
+    rootDir: atmosphere-analyzer/backend
+    buildCommand: ./build.sh
+    startCommand: gunicorn atmosphere_analyzer.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+
+  - type: web
+    name: atmosphere-analyzer-dashboard
+    runtime: static
+    rootDir: atmosphere-analyzer/frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
+    envVars:
+      - key: REACT_APP_API_URL
+        sync: false

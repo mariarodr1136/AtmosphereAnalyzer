@@ -23,7 +23,8 @@ const Dashboard = () => {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const response = await axios.get('http://127.0.0.1:8000/api/sensor-data/');
+            const apiUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+            const response = await axios.get(`${apiUrl}/api/sensor-data/`);
             setData(prevData => ({
                 temperature: [...prevData.temperature, response.data.temperature],
                 humidity: [...prevData.humidity, response.data.humidity],
