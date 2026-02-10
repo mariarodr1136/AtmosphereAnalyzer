@@ -3,6 +3,7 @@ services:
     name: atmosphere-analyzer-api
     runtime: python
     rootDir: atmosphere-analyzer/backend
+    plan: free
     buildCommand: ./build.sh
     startCommand: gunicorn atmosphere_analyzer.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
@@ -14,13 +15,16 @@ services:
         value: ".onrender.com"
       - key: CORS_ALLOWED_ORIGINS
         sync: false
+      - key: PYTHON_VERSION
+        value: "3.11.6"
 
   - type: web
     name: atmosphere-analyzer-dashboard
     runtime: static
     rootDir: atmosphere-analyzer/frontend
+    plan: free
     buildCommand: npm install && npm run build
-    staticPublishPath: build
+    staticPublishPath: ./build
     envVars:
       - key: REACT_APP_API_URL
         sync: false
