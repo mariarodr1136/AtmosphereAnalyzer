@@ -4,7 +4,7 @@
 }
 
 .App > div {
-  min-height: 100vh;
+  min-height: auto;
 }
 
 .App-logo {
