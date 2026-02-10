@@ -1,5 +1,10 @@
 .App {
   text-align: center;
+  min-height: 100vh;
+}
+
+.App > div {
+  min-height: 100vh;
 }
 
 .App-logo {
