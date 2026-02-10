@@ -1,12 +1,19 @@
 # Atmosphere Analyzer: Smart Data Visualization Tool 🌎📊
 
+![Python](https://img.shields.io/badge/Python-Programming%20Language-blue) ![Django](https://img.shields.io/badge/Django-Framework-green) ![AWS](https://img.shields.io/badge/AWS-Cloud%20Platform-orange) ![AWS Lambda](https://img.shields.io/badge/AWS%20Lambda-Serverless%20Computing-yellow) ![AWS S3](https://img.shields.io/badge/AWS%20S3-Object%20Storage-lightblue) ![React](https://img.shields.io/badge/React-Library-lightblue) ![Data Visualization](https://img.shields.io/badge/Data%20Visualization-Library-brightgreen) ![IoT](https://img.shields.io/badge/IoT-Concept-yellow)
+
 **Atmosphere Analyzer** is a comprehensive environmental monitoring system designed to simulate real-time sensor data using **Python**. It seamlessly integrates **AWS S3** for scalable and reliable data storage, while leveraging **AWS Lambda** for efficient, serverless data processing. The system's backend API, built with **Django**, organizes and serves environmental data through RESTful endpoints, ensuring robust data access. The frontend, developed with **React**, presents these metrics on an interactive dashboard, offering users a clear and intuitive visualization of environmental trends. The project is now deployment-ready, using **Render** to host the Django API and a static React build, with **Gunicorn**, **WhiteNoise**, and **CORS** configuration for production stability and cross-origin access. 
 
 This project empowers data-driven decision-making for sustainable resource management by delivering actionable insights through smart data visualization.
 
+Live Application: https://atmosphere-analyzer-dashboard.onrender.com/
 
+---
 
-![Python](https://img.shields.io/badge/Python-Programming%20Language-blue) ![Django](https://img.shields.io/badge/Django-Framework-green) ![AWS](https://img.shields.io/badge/AWS-Cloud%20Platform-orange) ![AWS Lambda](https://img.shields.io/badge/AWS%20Lambda-Serverless%20Computing-yellow) ![AWS S3](https://img.shields.io/badge/AWS%20S3-Object%20Storage-lightblue) ![React](https://img.shields.io/badge/React-Library-lightblue) ![Data Visualization](https://img.shields.io/badge/Data%20Visualization-Library-brightgreen) ![IoT](https://img.shields.io/badge/IoT-Concept-yellow)
+<img width="1466" alt="Screenshot 2024-10-31 at 5 24 10 PM" src="https://github.com/user-attachments/assets/c16511f9-5ec5-4c7b-8de1-17c4c1acde90">
+<img width="1463" alt="Screenshot 2024-10-31 at 5 24 18 PM" src="https://github.com/user-attachments/assets/b4f004e5-e9d0-4ad0-8db2-92c9446d2a7d">
+
+---
 
 
 ## Table of Contents
@@ -19,12 +26,6 @@ This project empowers data-driven decision-making for sustainable resource manag
 - [Future Enhancements](#future-enhancements)
 - [Contributing](#contributing)
 - [Contact](#contact-)
-
----
-
-
-<img width="1466" alt="Screenshot 2024-10-31 at 5 24 10 PM" src="https://github.com/user-attachments/assets/c16511f9-5ec5-4c7b-8de1-17c4c1acde90">
-<img width="1463" alt="Screenshot 2024-10-31 at 5 24 18 PM" src="https://github.com/user-attachments/assets/b4f004e5-e9d0-4ad0-8db2-92c9446d2a7d">
 
 
 ---
