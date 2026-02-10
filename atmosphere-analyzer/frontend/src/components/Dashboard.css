@@ -1,0 +1,116 @@
+.dashboard {
+  padding: 20px 40px 40px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Current Readings Cards */
+.current-readings {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin: 30px 0;
+}
+
+.reading-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 40px;
+  border-radius: 12px;
+  min-width: 180px;
+  color: white;
+}
+
+.temperature-card {
+  background: linear-gradient(135deg, #ff6384, #ff3860);
+}
+
+.humidity-card {
+  background: linear-gradient(135deg, #36a2eb, #2186d6);
+}
+
+.reading-label {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.9;
+}
+
+.reading-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.reading-unit {
+  font-size: 1.2rem;
+  font-weight: 400;
+  margin-left: 2px;
+}
+
+/* Stats Section */
+.stats-section {
+  margin-top: 30px;
+}
+
+.stats-section h3 {
+  margin-bottom: 4px;
+  color: #282c34;
+}
+
+.stats-note {
+  color: #888;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+.stats-grid {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.stats-card {
+  background: #f5f7fa;
+  border-radius: 10px;
+  padding: 16px 24px;
+  min-width: 180px;
+}
+
+.stats-card h4 {
+  margin: 0 0 12px;
+  color: #282c34;
+  font-size: 0.95rem;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 0.9rem;
+  color: #555;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.stats-row:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 500px) {
+  .current-readings,
+  .stats-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .reading-card,
+  .stats-card {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .dashboard {
+    padding: 20px 16px 40px;
+  }
+}

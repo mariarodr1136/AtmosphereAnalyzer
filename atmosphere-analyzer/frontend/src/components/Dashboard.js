@@ -11,9 +11,18 @@ import {
   PointElement
 } from 'chart.js';
 import axios from 'axios';
+import './Dashboard.css';
 
 // Register the necessary components
 ChartJS.register(LineElement, CategoryScale, LinearScale, Title, Tooltip, Legend, PointElement);
+
+const getStats = (values) => {
+    if (values.length === 0) return { min: '--', max: '--', avg: '--' };
+    const min = Math.min(...values).toFixed(1);
+    const max = Math.max(...values).toFixed(1);
+    const avg = (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
+    return { min, max, avg };
+};
 
 const Dashboard = () => {
     const [data, setData] = useState({ temperature: [], humidity: [] });
@@ -43,23 +52,33 @@ const Dashboard = () => {
         return () => clearInterval(interval); // Cleanup on component unmount
     }, []);
 
+    const latestTemp = data.temperature.length > 0
+        ? data.temperature[data.temperature.length - 1].toFixed(1)
+        : '--';
+    const latestHumidity = data.humidity.length > 0
+        ? data.humidity[data.humidity.length - 1].toFixed(1)
+        : '--';
+
+    const tempStats = getStats(data.temperature);
+    const humidityStats = getStats(data.humidity);
+
     // Ensure that the labels are unique and that the chart data updates correctly
     const chartData = {
-        labels: Array.from({ length: data.temperature.length }, (_, i) => i + 1), // Use time labels if available
+        labels: Array.from({ length: data.temperature.length }, (_, i) => i + 1),
         datasets: [
             {
-                label: 'Temperature (°C)',
+                label: 'Temperature (\u00B0C)',
                 data: data.temperature,
                 borderColor: 'rgba(255, 99, 132, 1)',
                 fill: false,
-                lineTension: 0, // This can help with smooth line rendering
+                lineTension: 0,
             },
             {
                 label: 'Humidity (%)',
                 data: data.humidity,
                 borderColor: 'rgba(54, 162, 235, 1)',
                 fill: false,
-                lineTension: 0, // This can help with smooth line rendering
+                lineTension: 0,
             },
         ],
     };
@@ -82,17 +101,47 @@ const Dashboard = () => {
                 },
             },
         },
-        responsive: true, // Ensure responsiveness
-        maintainAspectRatio: false, // Prevent aspect ratio issues
+        responsive: true,
+        maintainAspectRatio: false,
     };
 
     return (
-        <div>
+        <div className="dashboard">
             <h2>Environmental Metrics</h2>
-            {loading && <p>Loading data...</p>}
+            {loading && data.temperature.length === 0 && <p>Loading data...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
-            <div style={{ height: '400px', width: '100%' }}> {/* Add a fixed height to avoid layout shift */}
+            <div style={{ height: '400px', width: '100%' }}>
                 <Line data={chartData} options={chartOptions} />
+            </div>
+
+            <div className="current-readings">
+                <div className="reading-card temperature-card">
+                    <span className="reading-label">Temperature</span>
+                    <span className="reading-value">{latestTemp}<span className="reading-unit">{'\u00B0'}C</span></span>
+                </div>
+                <div className="reading-card humidity-card">
+                    <span className="reading-label">Humidity</span>
+                    <span className="reading-value">{latestHumidity}<span className="reading-unit">%</span></span>
+                </div>
+            </div>
+
+            <div className="stats-section">
+                <h3>Statistics</h3>
+                <p className="stats-note">{data.temperature.length} data points collected</p>
+                <div className="stats-grid">
+                    <div className="stats-card">
+                        <h4>Temperature ({'\u00B0'}C)</h4>
+                        <div className="stats-row"><span>Min</span><span>{tempStats.min}</span></div>
+                        <div className="stats-row"><span>Max</span><span>{tempStats.max}</span></div>
+                        <div className="stats-row"><span>Avg</span><span>{tempStats.avg}</span></div>
+                    </div>
+                    <div className="stats-card">
+                        <h4>Humidity (%)</h4>
+                        <div className="stats-row"><span>Min</span><span>{humidityStats.min}</span></div>
+                        <div className="stats-row"><span>Max</span><span>{humidityStats.max}</span></div>
+                        <div className="stats-row"><span>Avg</span><span>{humidityStats.avg}</span></div>
+                    </div>
+                </div>
             </div>
         </div>
     );
