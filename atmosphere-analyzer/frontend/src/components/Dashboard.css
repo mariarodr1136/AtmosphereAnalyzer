@@ -4,35 +4,26 @@
   margin: 0 auto;
 }
 
-/* Chart + readings side by side */
-.chart-row {
-  display: flex;
-  gap: 20px;
-  align-items: stretch;
-}
-
 .chart-container {
-  flex: 1;
   height: 400px;
-  min-width: 0;
+  width: 100%;
 }
 
-/* Current Readings Cards — right of chart */
+/* Current Readings Cards — centered below chart */
 .current-readings {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   justify-content: center;
-  flex-shrink: 0;
+  margin-top: 30px;
 }
 
 .reading-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px 30px;
+  padding: 20px 40px;
   border-radius: 12px;
-  min-width: 170px;
+  min-width: 180px;
   color: white;
 }
 
@@ -63,81 +54,7 @@
   margin-left: 2px;
 }
 
-/* Stats Section — centered below chart */
-.stats-section {
-  margin-top: 30px;
-  text-align: center;
-}
-
-.stats-section h3 {
-  margin: 0 0 4px;
-  color: #282c34;
-}
-
-.stats-note {
-  color: #888;
-  font-size: 0.85rem;
-  margin-bottom: 16px;
-}
-
-.stats-grid {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-}
-
-.stats-card {
-  background: #f5f7fa;
-  border-radius: 10px;
-  padding: 16px 24px;
-  min-width: 200px;
-  text-align: left;
-}
-
-.stats-card h4 {
-  margin: 0 0 12px;
-  color: #282c34;
-  font-size: 0.95rem;
-}
-
-.stats-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 4px 0;
-  font-size: 0.9rem;
-  color: #555;
-  border-bottom: 1px solid #e8e8e8;
-}
-
-.stats-row:last-child {
-  border-bottom: none;
-}
-
-@media (max-width: 700px) {
-  .chart-row {
-    flex-direction: column;
-  }
-
-  .chart-container {
-    height: 300px;
-  }
-
-  .current-readings {
-    flex-direction: row;
-    justify-content: center;
-  }
-
-  .stats-grid {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .dashboard {
-    padding: 20px 16px 40px;
-  }
-}
-
-@media (max-width: 400px) {
+@media (max-width: 500px) {
   .current-readings {
     flex-direction: column;
     align-items: center;
@@ -146,5 +63,13 @@
   .reading-card {
     width: 100%;
     max-width: 280px;
+  }
+
+  .dashboard {
+    padding: 20px 16px 40px;
+  }
+
+  .chart-container {
+    height: 300px;
   }
 }
