@@ -6,7 +6,11 @@
 
 This project empowers data-driven decision-making for sustainable resource management by delivering actionable insights through smart data visualization.
 
+---
+
 Live Application: https://atmosphere-analyzer-dashboard.onrender.com/
+
+*Note: The live application is hosted on Render’s free tier, so the backend may take 1–2 minutes to wake up on the first visit after inactivity. If the page loads slowly when creating a new user, please be patient while the server starts.*
 
 ---
 
