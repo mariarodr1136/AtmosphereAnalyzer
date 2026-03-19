@@ -5,11 +5,18 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
 # Virtual environments
 venv/
 virtual/
 .env
+.env.local
+.env.*.local
 
 # Database
 *.sqlite3
@@ -25,6 +32,8 @@ Thumbs.db
 # Node
 node_modules/
 npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
 # React build
 atmosphere-analyzer/frontend/build/
