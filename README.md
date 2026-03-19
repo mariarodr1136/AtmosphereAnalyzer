@@ -14,8 +14,9 @@ Live Application: https://atmosphere-analyzer-dashboard.onrender.com/
 
 ---
 
-<img width="1466" alt="Screenshot 2024-10-31 at 5 24 10 PM" src="https://github.com/user-attachments/assets/c16511f9-5ec5-4c7b-8de1-17c4c1acde90">
-<img width="1463" alt="Screenshot 2024-10-31 at 5 24 18 PM" src="https://github.com/user-attachments/assets/b4f004e5-e9d0-4ad0-8db2-92c9446d2a7d">
+<img width="1452" height="696" alt="Screenshot 2026-03-19 at 3 58 41 PM" src="https://github.com/user-attachments/assets/262d6d8e-c5b9-448e-b8e8-a4fcfbd6c979" />
+
+<img width="1457" height="565" alt="Screenshot 2026-03-19 at 4 05 32 PM" src="https://github.com/user-attachments/assets/f0275efe-4e9d-4420-af65-818503b441a3" />
 
 ---
 
@@ -106,7 +107,11 @@ Atmosphere Analyzer enables real-time monitoring and visualization of environmen
 
 ---
 
-https://github.com/user-attachments/assets/4c8a8693-ebb0-4f83-892d-03498b00b783
+
+
+https://github.com/user-attachments/assets/97a042df-3726-4756-ace5-f9cd916edede
+
+
 
 
 ---
