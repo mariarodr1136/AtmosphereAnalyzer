@@ -23,6 +23,9 @@ Live Application: https://atmosphere-analyzer-dashboard.onrender.com/
 
 ## Table of Contents
 - [Project Overview](#project-overview)
+- [Key Features](#key-features)
+- [Data Flow](#data-flow)
+- [Technical Highlights](#technical-highlights)
 - [Architecture](#architecture)
 - [Technologies](#technologies)
 - [Setup and Installation](#setup-and-installation)
@@ -37,6 +40,29 @@ Live Application: https://atmosphere-analyzer-dashboard.onrender.com/
 
 ## Project Overview 
 Atmosphere Analyzer enables real-time monitoring and visualization of environmental metrics through a robust architecture that simulates, processes, and delivers data efficiently. Designed for scalability and insight-driven analytics, the system models sensor data to help users track environmental changes over time, offering rolling windows, downloadable history, and geospatial context via an interactive map.
+
+## Key Features
+
+- **Live Controls**: Pause/resume streaming updates, switch temperature units (°C/°F), and choose rolling windows (1m/5m/15m/1h).
+- **Rich Metrics**: Temperature, humidity, wind speed, and air quality (AQI) with historical charting.
+- **Geospatial Context**: Leaflet-powered map with sensor markers, heat overlays, and per-sensor trend popups.
+- **Downloadable History**: Export the current time window to CSV for quick analysis or reporting.
+- **Sensor Sidebar**: Live sensor list with current values and timestamps for fast situational awareness.
+
+## Data Flow
+
+1. **Simulation** generates sensor readings (temperature, humidity, wind speed, AQI).
+2. **Django API** exposes endpoints for live readings and sensor locations.
+3. **React Dashboard** polls for updates, applies rolling windows, and renders charts, cards, and maps.
+4. **Export Layer** converts the visible time window into a CSV file for download.
+
+## Technical Highlights
+
+- **Rolling Window Time Series**: The chart uses a dynamic sliding window (1m/5m/15m/1h) while keeping the full stream in memory for accurate exports and comparisons.
+- **CSV Export From Live Window**: One click exports the exact window currently displayed in the chart, including precise timestamps and multiple metrics.
+- **Geospatial Trends & Context**: Marker popups show per-sensor trend sparklines alongside live values for quick visual diagnosis.
+- **Heat Overlay Layer**: A lightweight heatmap-like overlay uses vector circles to emphasize spatial intensity without heavyweight GIS dependencies.
+- **UX-First Controls**: Pause/resume, unit toggle, and live sensor sidebar are optimized for quick scanning and operational use.
 
 ## Architecture
 
