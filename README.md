@@ -28,10 +28,9 @@ Live Application: https://atmosphere-analyzer-dashboard.onrender.com/
 - [Technical Highlights](#technical-highlights)
 - [Architecture](#architecture)
 - [Technologies](#technologies)
-- [Setup and Installation](#setup-and-installation)
-- [Usage](#usage)
 - [Deployment](#deployment)
 - [Future Enhancements](#future-enhancements)
+- [Setup and Installation](#setup-and-installation)
 - [Contributing](#contributing)
 - [Contact](#contact-)
 
@@ -89,6 +88,24 @@ Atmosphere Analyzer enables real-time monitoring and visualization of environmen
 - **Leaflet + react-leaflet**: Provides the interactive sensor map and heat overlays.
 - **Axios**: Handles API requests from the React frontend.
 
+## Deployment
+
+- **Backend (Django)**: Deploy on **Render** with Gunicorn and WhiteNoise, or use AWS Elastic Beanstalk / EC2 for scalable hosting.
+- **Frontend (React)**: Deploy the static build on **Render**, or use AWS Amplify / S3 static site hosting for reliable frontend delivery.
+
+## Future Enhancements
+
+- **Advanced Data Analytics**: Integrate machine learning models to predict environmental trends.
+- **User Authentication**: Implement user management for secure, personalized data access.
+- **Expanded Sensor Metrics**: Add more simulated metrics like light levels or noise pollution.
+
+---
+
+https://github.com/user-attachments/assets/97a042df-3726-4756-ace5-f9cd916edede
+
+---
+
+
 ## Setup and Installation
 
 ### Prerequisites
@@ -132,31 +149,6 @@ Atmosphere Analyzer enables real-time monitoring and visualization of environmen
 - Use the provided `render.yaml` to deploy the Django API (Gunicorn + WhiteNoise) and the React static site.
 
 ---
-
-
-
-https://github.com/user-attachments/assets/97a042df-3726-4756-ace5-f9cd916edede
-
-
-
-
----
-
-## Usage
-
-1. **Simulate Sensor Data**: Run the Python script to simulate data transmission to the Django API.
-2. **View Data on Dashboard**: Access the React dashboard to visualize real-time environmental metrics, rolling windows, and the live sensor map.
-
-## Deployment
-
-- **Backend (Django)**: Deploy on **Render** with Gunicorn and WhiteNoise, or use AWS Elastic Beanstalk / EC2 for scalable hosting.
-- **Frontend (React)**: Deploy the static build on **Render**, or use AWS Amplify / S3 static site hosting for reliable frontend delivery.
-
-## Future Enhancements
-
-- **Advanced Data Analytics**: Integrate machine learning models to predict environmental trends.
-- **User Authentication**: Implement user management for secure, personalized data access.
-- **Expanded Sensor Metrics**: Add more simulated metrics like light levels or noise pollution.
 
 ## Contributing
 Feel free to submit issues or pull requests for improvements or bug fixes. You can also open issues to discuss potential changes or enhancements. All contributions are welcome to enhance the app’s features or functionality!
