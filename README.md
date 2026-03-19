@@ -2,7 +2,7 @@
 
 ![Python](https://img.shields.io/badge/Python-Programming%20Language-blue) ![Django](https://img.shields.io/badge/Django-Framework-green) ![AWS](https://img.shields.io/badge/AWS-Cloud%20Platform-orange) ![AWS Lambda](https://img.shields.io/badge/AWS%20Lambda-Serverless%20Computing-yellow) ![AWS S3](https://img.shields.io/badge/AWS%20S3-Object%20Storage-lightblue) ![React](https://img.shields.io/badge/React-Library-lightblue) ![Data Visualization](https://img.shields.io/badge/Data%20Visualization-Library-brightgreen) ![IoT](https://img.shields.io/badge/IoT-Concept-yellow)
 
-**Atmosphere Analyzer** is a comprehensive environmental monitoring system designed to simulate real-time sensor data using **Python**. It seamlessly integrates **AWS S3** for scalable and reliable data storage, while leveraging **AWS Lambda** for efficient, serverless data processing. The system's backend API, built with **Django**, organizes and serves environmental data through RESTful endpoints, ensuring robust data access. The frontend, developed with **React**, presents these metrics on an interactive dashboard, offering users a clear and intuitive visualization of environmental trends. The project is now deployment-ready, using **Render** to host the Django API and a static React build, with **Gunicorn**, **WhiteNoise**, and **CORS** configuration for production stability and cross-origin access. 
+**Atmosphere Analyzer** is a comprehensive environmental monitoring system designed to simulate real-time sensor data using **Python**. It seamlessly integrates **AWS S3** for scalable and reliable data storage, while leveraging **AWS Lambda** for efficient, serverless data processing. The system's backend API, built with **Django**, organizes and serves environmental data through RESTful endpoints, ensuring robust data access. The frontend, developed with **React**, presents these metrics on an interactive dashboard with live controls (pause/resume, rolling windows, unit toggle), downloadable CSV history, and a Leaflet-powered sensor map with heat overlays and live sensor cards. The project is now deployment-ready, using **Render** to host the Django API and a static React build, with **Gunicorn**, **WhiteNoise**, and **CORS** configuration for production stability and cross-origin access. 
 
 This project empowers data-driven decision-making for sustainable resource management by delivering actionable insights through smart data visualization.
 
@@ -35,16 +35,17 @@ Live Application: https://atmosphere-analyzer-dashboard.onrender.com/
 ---
 
 ## Project Overview 
-Atmosphere Analyzer enables real-time monitoring and visualization of environmental metrics through a robust architecture that simulates, processes, and delivers data efficiently. Designed for scalability and insight-driven analytics, the system models sensor data to help users track environmental changes over time, providing actionable insights for data-driven decision-making.
+Atmosphere Analyzer enables real-time monitoring and visualization of environmental metrics through a robust architecture that simulates, processes, and delivers data efficiently. Designed for scalability and insight-driven analytics, the system models sensor data to help users track environmental changes over time, offering rolling windows, downloadable history, and geospatial context via an interactive map.
 
 ## Architecture
 
-1. **Data Simulation (Python)**: Simulates sensor data (e.g., temperature, humidity) to mimic real-world readings.
+1. **Data Simulation (Python)**: Simulates sensor data (e.g., temperature, humidity, wind speed, air quality) to mimic real-world readings.
 2. **Data Storage (AWS S3)**: Utilizes AWS S3 for scalable and durable storage of environmental metrics.
 3. **Data Processing (AWS Lambda)**: Processes incoming data using AWS Lambda, enabling real-time processing without server management.
 4. **Backend API (Django)**: Organizes and serves data to the frontend through RESTful endpoints, managing data access efficiently.
-5. **Frontend Visualization (React)**: The interactive React dashboard fetches and visualizes data in real-time, enhancing user engagement.
-6. **Deployment (Render)**: Django runs with **Gunicorn**, static assets are served via **WhiteNoise**, and the React app is built and deployed as a static site with environment-based API configuration and CORS support.
+5. **Frontend Visualization (React)**: The interactive React dashboard fetches and visualizes data in real-time with rolling windows, live controls, and downloadable CSV history.
+6. **Geospatial View (Leaflet)**: A map view displays sensor locations with heat overlays and per-sensor trend popups.
+7. **Deployment (Render)**: Django runs with **Gunicorn**, static assets are served via **WhiteNoise**, and the React app is built and deployed as a static site with environment-based API configuration and CORS support.
 
 ## Technologies
 
@@ -58,6 +59,7 @@ Atmosphere Analyzer enables real-time monitoring and visualization of environmen
 - **WhiteNoise**: Serves static files in production for the Django backend.
 - **django-cors-headers**: Enables CORS configuration for the frontend-to-backend requests.
 - **Chart.js + react-chartjs-2**: Powers the dashboard visualizations.
+- **Leaflet + react-leaflet**: Provides the interactive sensor map and heat overlays.
 - **Axios**: Handles API requests from the React frontend.
 
 ## Setup and Installation
@@ -112,7 +114,7 @@ https://github.com/user-attachments/assets/4c8a8693-ebb0-4f83-892d-03498b00b783
 ## Usage
 
 1. **Simulate Sensor Data**: Run the Python script to simulate data transmission to the Django API.
-2. **View Data on Dashboard**: Access the React dashboard to visualize real-time environmental metrics sourced from the API.
+2. **View Data on Dashboard**: Access the React dashboard to visualize real-time environmental metrics, rolling windows, and the live sensor map.
 
 ## Deployment
 
@@ -123,7 +125,7 @@ https://github.com/user-attachments/assets/4c8a8693-ebb0-4f83-892d-03498b00b783
 
 - **Advanced Data Analytics**: Integrate machine learning models to predict environmental trends.
 - **User Authentication**: Implement user management for secure, personalized data access.
-- **Expanded Sensor Metrics**: Add more simulated metrics like air quality and light levels.
+- **Expanded Sensor Metrics**: Add more simulated metrics like light levels or noise pollution.
 
 ## Contributing
 Feel free to submit issues or pull requests for improvements or bug fixes. You can also open issues to discuss potential changes or enhancements. All contributions are welcome to enhance the app’s features or functionality!

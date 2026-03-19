@@ -9,12 +9,187 @@
   width: 100%;
 }
 
+.dashboard-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 12px 0 20px;
+  flex-wrap: wrap;
+}
+
+.unit-toggle {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.window-toggle {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.control-button {
+  border: 1px solid #d0d7de;
+  background: #ffffff;
+  color: #1f2328;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+}
+
+.control-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(31, 35, 40, 0.12);
+}
+
+.control-button.is-active {
+  background: #1f2328;
+  color: #ffffff;
+  border-color: #1f2328;
+}
+
+.control-button.is-paused {
+  background: #fff3cd;
+  border-color: #ffecb5;
+  color: #7a5b00;
+}
+
+.map-section {
+  margin-top: 32px;
+}
+
+.map-section h3 {
+  margin-bottom: 12px;
+}
+
+.map-layout {
+  display: flex;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.map-container {
+  height: 490px;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e6e6e6;
+}
+
+.map-container .leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+.sensor-sidebar {
+  width: 280px;
+  min-width: 240px;
+  height: 460px;
+  background: #ffffff;
+  border: 1px solid #e6e6e6;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+}
+
+.sensor-sidebar-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.sensor-sidebar-header h4 {
+  margin: 0;
+}
+
+.sensor-updated {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.sensor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.sensor-card {
+  border: 1px solid #edf0f2;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #f9fafb;
+}
+
+.sensor-name {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.sensor-values {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.map-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.map-trends {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.trend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trend-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #5d6570;
+  width: 90px;
+}
+
+.sparkline {
+  width: 120px;
+  height: 36px;
+}
+
+.sensor-marker span {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
 /* Current Readings Cards — centered below chart */
 .current-readings {
   display: flex;
   gap: 20px;
   justify-content: center;
   margin-top: 30px;
+  flex-wrap: wrap;
 }
 
 .reading-card {
@@ -33,6 +208,14 @@
 
 .humidity-card {
   background: linear-gradient(135deg, #36a2eb, #2186d6);
+}
+
+.wind-card {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.air-card {
+  background: linear-gradient(135deg, #eab308, #f59e0b);
 }
 
 .reading-label {
@@ -71,5 +254,18 @@
 
   .chart-container {
     height: 300px;
+  }
+
+  .map-container {
+    height: 300px;
+  }
+
+  .map-layout {
+    flex-direction: column;
+  }
+
+  .sensor-sidebar {
+    width: 100%;
+    height: auto;
   }
 }
