@@ -17,6 +17,8 @@ services:
         sync: false
       - key: OPENWEATHER_API_KEY
         sync: false
+      - key: OPENAQ_API_KEY
+        sync: false
       - key: PYTHON_VERSION
         value: "3.11.6"
 
