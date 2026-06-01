@@ -1,25 +1,24 @@
 # Atmosphere Analyzer: Smart Data Visualization Tool 🌎📊
 
-![Python](https://img.shields.io/badge/Python-Programming%20Language-blue) ![Django](https://img.shields.io/badge/Django-Framework-green) ![AWS](https://img.shields.io/badge/AWS-Cloud%20Platform-orange) ![AWS Lambda](https://img.shields.io/badge/AWS%20Lambda-Serverless%20Computing-yellow) ![AWS S3](https://img.shields.io/badge/AWS%20S3-Object%20Storage-lightblue) ![React](https://img.shields.io/badge/React-Library-lightblue) ![Data Visualization](https://img.shields.io/badge/Data%20Visualization-Library-brightgreen) ![IoT](https://img.shields.io/badge/IoT-Concept-yellow)
+![Python](https://img.shields.io/badge/Python-Programming%20Language-blue) ![Django](https://img.shields.io/badge/Django-Framework-green) ![Django%20Channels](https://img.shields.io/badge/Django%20Channels-WebSockets-purple) ![React](https://img.shields.io/badge/React-Library-lightblue) ![Data Visualization](https://img.shields.io/badge/Data%20Visualization-Library-brightgreen) ![OpenWeatherMap](https://img.shields.io/badge/OpenWeatherMap-Live%20Data-orange)
 
-**Atmosphere Analyzer** is a comprehensive environmental monitoring system designed to simulate real-time sensor data using **Python**. It seamlessly integrates **AWS S3** for scalable and reliable data storage, while leveraging **AWS Lambda** for efficient, serverless data processing. The system's backend API, built with **Django**, organizes and serves environmental data through RESTful endpoints, ensuring robust data access. The frontend, developed with **React**, presents these metrics on an interactive dashboard with live controls (pause/resume, rolling windows, unit toggle), downloadable CSV history, and a Leaflet-powered sensor map with heat overlays and live sensor cards. The project is now deployment-ready, using **Render** to host the Django API and a static React build, with **Gunicorn**, **WhiteNoise**, and **CORS** configuration for production stability and cross-origin access. 
+**Atmosphere Analyzer** is a real-time environmental monitoring dashboard that streams live weather data from the **OpenWeatherMap API** for five US cities. The backend, built with **Django** and **Django Channels**, serves sensor readings over **WebSockets** and persists every reading to a database for accurate historical analysis. The frontend, built with **React**, renders an interactive time-series chart with a city selector, rolling window controls, a Leaflet-powered sensor map with heat overlays, and a live sensor sidebar. The app is deployed on **Render** using **Daphne** as the ASGI server.
 
-This project empowers data-driven decision-making for sustainable resource management by delivering actionable insights through smart data visualization.
+This project demonstrates full-stack real-time data engineering: live API integration, WebSocket streaming, database-backed history, and interactive geospatial visualization.
 
 ---
 
 Live Application: https://atmosphere-analyzer-dashboard.onrender.com/
 
-*Note: The live application is hosted on Render’s free tier, so the backend may take 1–2 minutes to wake up on the first visit after inactivity. If the data loads slowly, please be patient while the server starts.*
+*Note: The live application is hosted on Render's free tier, so the backend may take 1–2 minutes to wake up on the first visit after inactivity.*
 
 ---
 
-<img width="1452" height="696" alt="Screenshot 2026-03-19 at 3 58 41 PM" src="https://github.com/user-attachments/assets/262d6d8e-c5b9-448e-b8e8-a4fcfbd6c979" />
+<img width="1452" height="696" alt="Screenshot 2026-03-19 at 3 58 41 PM" src="https://github.com/user-attachments/assets/262d6d8e-c5b9-448e-b8e8-a4fcfbd6c979" />
 
-<img width="1457" height="565" alt="Screenshot 2026-03-19 at 4 05 32 PM" src="https://github.com/user-attachments/assets/f0275efe-4e9d-4420-af65-818503b441a3" />
+<img width="1457" height="565" alt="Screenshot 2026-03-19 at 4 05 32 PM" src="https://github.com/user-attachments/assets/f0275efe-4e9d-4420-af65-818503b441a3" />
 
 ---
-
 
 ## Table of Contents
 - [Project Overview](#project-overview)
@@ -29,147 +28,155 @@ Live Application: https://atmosphere-analyzer-dashboard.onrender.com/
 - [Architecture](#architecture)
 - [Technologies](#technologies)
 - [Deployment](#deployment)
-- [Future Enhancements](#future-enhancements)
 - [Setup and Installation](#setup-and-installation)
 - [Contributing](#contributing)
 - [Contact](#contact-)
 
-
 ---
 
-## Project Overview 
-Atmosphere Analyzer enables real-time monitoring and visualization of environmental metrics through a robust architecture that simulates, processes, and delivers data efficiently. Designed for scalability and insight-driven analytics, the system models sensor data to help users track environmental changes over time, offering rolling windows, downloadable history, and geospatial context via an interactive map.
+## Project Overview
+Atmosphere Analyzer streams live weather data for five US cities — New York, Los Angeles, Chicago, Miami, and Seattle — and visualizes it in real time. The backend fetches temperature, humidity, and wind speed from the OpenWeatherMap API on every WebSocket push cycle, persists each reading to SQLite, and serves a queryable history endpoint. When no API key is configured, the system falls back to a stateful simulation where each reading evolves smoothly from the previous one. The React frontend connects over WebSocket and automatically falls back to HTTP polling if the connection drops.
 
 ## Key Features
 
-- **Live Controls**: Pause/resume streaming updates, switch temperature units (°C/°F), and choose rolling windows (1m/5m/15m/1h).
-- **Rich Metrics**: Temperature, humidity, wind speed, and air quality (AQI) with historical charting.
-- **Geospatial Context**: Leaflet-powered map with sensor markers, heat overlays, and per-sensor trend popups.
-- **Downloadable History**: Export the current time window to CSV for quick analysis or reporting.
-- **Sensor Sidebar**: Live sensor list with current values and timestamps for fast situational awareness.
+- **Live Weather Data**: Temperature, humidity, and wind speed sourced from the OpenWeatherMap API for five real US cities, with AQI simulation.
+- **WebSocket Streaming**: Django Channels pushes a combined payload (global aggregate + all 5 city readings) every 5 seconds. The frontend shows a "WebSocket" or "Polling" badge to indicate the active connection mode.
+- **City Selector**: Dropdown in the chart controls lets you switch the time-series chart between any individual city or the global aggregate.
+- **Stateful Simulation Fallback**: When the API key is absent or a request fails, readings evolve from the previous persisted value using small random deltas — charts always show coherent trends, never random noise.
+- **Database Persistence**: Every reading is stored in SQLite (`SensorReading`, `SensorLocation`, `SensorLocationReading` models), enabling real historical data for exports and the rolling window chart.
+- **Rolling Window Time Series**: Dynamic sliding window (1m / 5m / 15m / 1h) applied to persisted data so the chart reflects actual trends over time.
+- **Downloadable CSV History**: One click exports the exact window and city currently displayed, with precise timestamps.
+- **Geospatial Context**: Leaflet map with per-city markers, heat overlays scaled to temperature, and sparkline trend popups in each marker.
+- **Sensor Sidebar**: Live card list showing current readings for all five cities, updated on every push.
+- **Test Suite**: 12 Django tests covering data evolution, value bounds, database persistence, and the history endpoint.
 
 ## Data Flow
 
-1. **Simulation** generates sensor readings (temperature, humidity, wind speed, AQI).
-2. **Django API** exposes endpoints for live readings and sensor locations.
-3. **React Dashboard** polls for updates, applies rolling windows, and renders charts, cards, and maps.
-4. **Export Layer** converts the visible time window into a CSV file for download.
+1. **OpenWeatherMap API** (or stateful simulation fallback) produces a reading for each city on every cycle.
+2. **Django Channels consumer** calls the data source, saves each reading to the database, and broadcasts the full payload over WebSocket every 5 seconds.
+3. **React Dashboard** receives the WebSocket message, appends readings to per-city history, and re-renders the chart, metric cards, and map.
+4. **HTTP polling** activates automatically as a fallback if the WebSocket connection cannot be established.
+5. **Export Layer** converts the currently visible chart window (city + time range) to a CSV download.
 
 ## Technical Highlights
 
-- **Rolling Window Time Series**: The chart uses a dynamic sliding window (1m/5m/15m/1h) while keeping the full stream in memory for accurate exports and comparisons.
-- **CSV Export From Live Window**: One click exports the exact window currently displayed in the chart, including precise timestamps and multiple metrics.
-- **Geospatial Trends & Context**: Marker popups show per-sensor trend sparklines alongside live values for quick visual diagnosis.
-- **Heat Overlay Layer**: A lightweight heatmap-like overlay uses vector circles to emphasize spatial intensity without heavyweight GIS dependencies.
-- **UX-First Controls**: Pause/resume, unit toggle, and live sensor sidebar are optimized for quick scanning and operational use.
+- **WebSocket with HTTP Fallback**: The frontend attempts a WebSocket connection on mount. If it fails or closes unexpectedly, it switches to 5-second HTTP polling with no user action required.
+- **Stateful Simulation**: Each simulated reading is derived from the previous database row using bounded random deltas, so charts always display smooth, realistic trends rather than random scatter.
+- **DB-Backed Rolling Window**: Because readings are persisted, the rolling window chart reflects real elapsed time — not just in-memory session data.
+- **City-Level Chart Selector**: Switching cities in the dropdown re-sources the chart, metric cards, and CSV export from that city's `locationHistory` without re-fetching from the server.
+- **ASGI + Daphne**: The Django app runs under Daphne (ASGI) rather than Gunicorn (WSGI), enabling concurrent WebSocket connections alongside standard HTTP requests.
+- **Geospatial Trends**: Marker popups include per-metric sparklines built from the last 20 readings stored in `locationHistory`, giving instant trend context without a separate API call.
 
 ## Architecture
 
-1. **Data Simulation (Python)**: Simulates sensor data (e.g., temperature, humidity, wind speed, air quality) to mimic real-world readings.
-2. **Data Storage (AWS S3)**: Utilizes AWS S3 for scalable and durable storage of environmental metrics.
-3. **Data Processing (AWS Lambda)**: Processes incoming data using AWS Lambda, enabling real-time processing without server management.
-4. **Backend API (Django)**: Organizes and serves data to the frontend through RESTful endpoints, managing data access efficiently.
-5. **Frontend Visualization (React)**: The interactive React dashboard fetches and visualizes data in real-time with rolling windows, live controls, and downloadable CSV history.
-6. **Geospatial View (Leaflet)**: A map view displays sensor locations with heat overlays and per-sensor trend popups.
-7. **Deployment (Render)**: Django runs with **Gunicorn**, static assets are served via **WhiteNoise**, and the React app is built and deployed as a static site with environment-based API configuration and CORS support.
+1. **Live Data (OpenWeatherMap API)**: Fetches real temperature, humidity, and wind speed for each city. Falls back to a stateful simulation when the API key is not set or a request fails.
+2. **Backend API (Django + Django REST Framework)**: Exposes `/api/sensor-data/`, `/api/sensor-locations/`, and `/api/sensor-history/` endpoints alongside the WebSocket consumer.
+3. **WebSocket Layer (Django Channels + Daphne)**: A persistent consumer pushes combined sensor payloads to all connected clients every 5 seconds.
+4. **Database (SQLite)**: Stores `SensorReading`, `SensorLocation`, and `SensorLocationReading` records for history, exports, and stateful simulation continuity.
+5. **Frontend Visualization (React)**: Connects via WebSocket, maintains per-city history in state, and renders the time-series chart, metric cards, sensor map, and sidebar.
+6. **Geospatial View (Leaflet)**: Displays sensor locations with temperature-based heat overlays and sparkline popups.
+7. **Deployment (Render)**: Daphne serves the ASGI application; static assets are served via WhiteNoise; the React app is deployed as a static site.
 
 ## Technologies
 
-- **Python**: For data simulation and AWS Lambda processing.
-- **AWS (S3, Lambda)**: Provides scalable storage and serverless data processing capabilities.
-- **Django**: Facilitates API creation and data management.
-- **React**: Powers interactive data visualization.
-- **Django REST Framework**: Establishes REST API endpoints for seamless data access.
-- **Render**: Hosts the Django API and the React static build for deployment.
-- **Gunicorn**: Production WSGI server for Django.
-- **WhiteNoise**: Serves static files in production for the Django backend.
-- **django-cors-headers**: Enables CORS configuration for the frontend-to-backend requests.
-- **Chart.js + react-chartjs-2**: Powers the dashboard visualizations.
-- **Leaflet + react-leaflet**: Provides the interactive sensor map and heat overlays.
-- **Axios**: Handles API requests from the React frontend.
+- **Python**: Backend language for data fetching, simulation, and API logic.
+- **Django**: Web framework for API endpoints and database management.
+- **Django Channels**: Adds WebSocket support to Django via the ASGI interface.
+- **Django REST Framework**: REST API endpoints for sensor data and history.
+- **Daphne**: ASGI server that handles both HTTP and WebSocket connections in production.
+- **SQLite**: Lightweight database for persisting all sensor readings.
+- **OpenWeatherMap API**: Source of live temperature, humidity, and wind speed data.
+- **React**: Frontend library powering the interactive dashboard.
+- **Chart.js + react-chartjs-2**: Time-series chart with rolling window and city selector.
+- **Leaflet + react-leaflet**: Interactive sensor map with heat overlays and sparkline popups.
+- **Axios**: HTTP client used for the polling fallback path.
+- **WhiteNoise**: Serves Django static files in production.
+- **django-cors-headers**: CORS configuration for frontend-to-backend requests.
+- **Render**: Hosts the Django/Daphne backend and the React static build.
+- **pytest + pytest-django**: Test runner for the 12-test Django test suite.
 
 ## Deployment
 
-- **Backend (Django)**: Deploy on **Render** with Gunicorn and WhiteNoise, or use AWS Elastic Beanstalk / EC2 for scalable hosting.
-- **Frontend (React)**: Deploy the static build on **Render**, or use AWS Amplify / S3 static site hosting for reliable frontend delivery.
+**Backend (Django + Channels)**: Deployed on Render using Daphne as the ASGI server. `render.yaml` configures the start command, environment variables, and build steps including `python manage.py migrate`.
 
-## Future Enhancements
+**Frontend (React)**: Deployed as a static site on Render. Set `REACT_APP_API_URL` to the backend service URL so the frontend connects to the correct WebSocket and API endpoints.
 
-- **Advanced Data Analytics**: Integrate machine learning models to predict environmental trends.
-- **User Authentication**: Implement user management for secure, personalized data access.
-- **Expanded Sensor Metrics**: Add more simulated metrics like light levels or noise pollution.
+**Environment Variables**:
 
----
-
-https://github.com/user-attachments/assets/97a042df-3726-4756-ace5-f9cd916edede
-
----
-
+| Variable | Service | Purpose |
+|---|---|---|
+| `DJANGO_SECRET_KEY` | Backend | Django secret key (auto-generated by Render) |
+| `DEBUG` | Backend | Set to `False` in production |
+| `ALLOWED_HOSTS` | Backend | e.g. `.onrender.com` |
+| `CORS_ALLOWED_ORIGINS` | Backend | Frontend URL for CORS |
+| `OPENWEATHER_API_KEY` | Backend | OpenWeatherMap API key (falls back to simulation if unset) |
+| `REACT_APP_API_URL` | Frontend | Backend service URL |
 
 ## Setup and Installation
 
 ### Prerequisites
 
-- **Python 3.x** and **Django** installed on your machine
-- **Node.js and npm** for the React frontend
-- **AWS CLI** configured with access to S3 and Lambda
-- (Optional for deployment) **Render** account and CLI or dashboard access
+- Python 3.10+ and pip
+- Node.js and npm
+- (Optional) OpenWeatherMap API key — free tier at [openweathermap.org](https://openweathermap.org/api)
 
 ### Installation Steps
 
 1. **Clone the Repository**
    ```bash
    git clone https://github.com/mariarodr1136/AtmosphereAnalyzer.git
-   cd AtmosphereAnalyzer
-2. **Backend Setup (Django)**
-- Navigate to the backend directory:
+   cd AtmosphereAnalyzer/atmosphere-analyzer
+   ```
+
+2. **Backend Setup**
    ```bash
    cd backend
-- Install dependencies:
-   ```bash
    pip install -r requirements.txt
-- Configure AWS S3 settings in Django.
-- Start the Django Server:
-   ```bash
+   python manage.py migrate
    python manage.py runserver
-3. **Frontend Setup (React)**
-- Navigate to the frontend directory:
+   ```
+   Optionally set `OPENWEATHER_API_KEY` in your environment for live weather data:
+   ```bash
+   export OPENWEATHER_API_KEY=your_key_here
+   ```
+
+3. **Frontend Setup**
    ```bash
    cd frontend
-- Install dependencies:
-   ```bash
    npm install
-- Start the React development server:
-   ```bash
    npm start
-4. **AWS Lambda Setup**
-- Create a Lambda function for data processing and configure it to store data in S3.
-5. **Render Deployment Setup (Optional)**
-- Configure environment variables for the backend (e.g., `DJANGO_SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS`) and for the frontend (`REACT_APP_API_URL`).
-- Use the provided `render.yaml` to deploy the Django API (Gunicorn + WhiteNoise) and the React static site.
+   ```
+   The frontend defaults to `http://127.0.0.1:8000` for the API. Override with:
+   ```bash
+   REACT_APP_API_URL=http://127.0.0.1:8000 npm start
+   ```
+
+4. **Running Tests**
+   ```bash
+   cd backend
+   python manage.py test api
+   ```
 
 ---
 
 ## Contributing
-Feel free to submit issues or pull requests for improvements or bug fixes. You can also open issues to discuss potential changes or enhancements. All contributions are welcome to enhance the app’s features or functionality!
-
-To contribute, please follow these steps:
+Feel free to submit issues or pull requests for improvements or bug fixes. All contributions are welcome!
 
 1. Fork the repository.
-2. Create a new branch for your feature or bug fix:
+2. Create a new branch:
    ```bash
    git checkout -b feat/your-feature-name
-- Alternatively, for bug fixes:
+   ```
+3. Make your changes and ensure all tests pass:
    ```bash
-   git checkout -b fix/your-bug-fix-name
-3. Make your changes and run all tests before committing the changes and make sure all tests are passed.
-4. After all tests are passed, commit your changes with descriptive messages:
+   python manage.py test api
+   ```
+4. Commit and push:
    ```bash
    git commit -m 'add your commit message'
-5. Push your changes to your forked repository:
-   ```bash
-   git push origin feat/your-feature-name.
-6. Submit a pull request to the main repository, explaining your changes and providing any necessary details.
+   git push origin feat/your-feature-name
+   ```
+5. Submit a pull request with a description of your changes.
 
 ## Contact 🌐
 If you have any questions or feedback, feel free to reach out at [mrodr.contact@gmail.com](mailto:mrodr.contact@gmail.com).
