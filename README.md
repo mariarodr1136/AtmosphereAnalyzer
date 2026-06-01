@@ -1,10 +1,10 @@
 # Atmosphere Analyzer: Smart Data Visualization Tool 🌎📊
 
-![Python](https://img.shields.io/badge/Python-Programming%20Language-blue) ![Django](https://img.shields.io/badge/Django-Framework-green) ![Django%20Channels](https://img.shields.io/badge/Django%20Channels-WebSockets-purple) ![React](https://img.shields.io/badge/React-Library-lightblue) ![Data Visualization](https://img.shields.io/badge/Data%20Visualization-Library-brightgreen) ![OpenWeatherMap](https://img.shields.io/badge/OpenWeatherMap-Live%20Data-orange)
+![Python](https://img.shields.io/badge/Python-Programming%20Language-blue) ![Django](https://img.shields.io/badge/Django-Framework-green) ![Django%20Channels](https://img.shields.io/badge/Django%20Channels-WebSockets-purple) ![React](https://img.shields.io/badge/React-Library-lightblue) ![Data Visualization](https://img.shields.io/badge/Data%20Visualization-Library-brightgreen) ![OpenWeatherMap](https://img.shields.io/badge/OpenWeatherMap-Live%20Data-orange) ![OpenAQ](https://img.shields.io/badge/OpenAQ-Air%20Quality-green)
 
-**Atmosphere Analyzer** is a real-time environmental monitoring dashboard that streams live weather data from the **OpenWeatherMap API** for five US cities. The backend, built with **Django** and **Django Channels**, serves sensor readings over **WebSockets** and persists every reading to a database for accurate historical analysis. The frontend, built with **React**, renders an interactive time-series chart with a city selector, rolling window controls, a Leaflet-powered sensor map with heat overlays, and a live sensor sidebar. The app is deployed on **Render** using **Daphne** as the ASGI server.
+**Atmosphere Analyzer** is a real-time environmental monitoring dashboard that streams live weather and air quality data for five US cities. Temperature, humidity, and wind speed come from the **OpenWeatherMap API**; PM2.5 readings are fetched from the nearest monitoring station via the **OpenAQ API** and converted to AQI using the EPA formula. The backend, built with **Django** and **Django Channels**, pushes all data over **WebSockets** every five seconds and persists every reading to SQLite for accurate historical analysis. The frontend, built with **React**, renders an interactive time-series chart with a city selector and compare-cities mode, configurable alert thresholds with browser notifications, rolling window controls, a Leaflet-powered sensor map, and a live sensor sidebar. The app is deployed on **Render** using **Daphne** as the ASGI server.
 
-This project demonstrates full-stack real-time data engineering: live API integration, WebSocket streaming, database-backed history, and interactive geospatial visualization.
+This project demonstrates full-stack real-time data engineering: dual live API integration, WebSocket streaming, database-backed history, EPA AQI conversion, and interactive geospatial visualization.
 
 ---
 
@@ -35,15 +35,17 @@ Live Application: https://atmosphere-analyzer-dashboard.onrender.com/
 ---
 
 ## Project Overview
-Atmosphere Analyzer streams live weather data for five US cities — New York, Los Angeles, Chicago, Miami, and Seattle — and visualizes it in real time. The backend fetches temperature, humidity, and wind speed from the OpenWeatherMap API on every WebSocket push cycle, persists each reading to SQLite, and serves a queryable history endpoint. When no API key is configured, the system falls back to a stateful simulation where each reading evolves smoothly from the previous one. The React frontend connects over WebSocket and automatically falls back to HTTP polling if the connection drops.
+Atmosphere Analyzer streams live environmental data for five US cities — New York, Los Angeles, Chicago, Miami, and Seattle — and visualizes it in real time. Temperature, humidity, and wind speed are fetched from the OpenWeatherMap API; air quality (AQI) is derived from real PM2.5 readings sourced from the nearest monitoring station via the OpenAQ API, converted using EPA breakpoints, and cached for 10 minutes to respect free-tier rate limits. Every reading is persisted to SQLite, enabling real historical data for rolling-window charts and CSV exports. When an API key is absent or a request fails, the system falls back to a stateful simulation where each value evolves smoothly from the previous database row. The React frontend connects over WebSocket and automatically falls back to HTTP polling if the connection drops.
 
 ## Key Features
 
-- **Live Weather Data**: Temperature, humidity, and wind speed sourced from the OpenWeatherMap API for five real US cities, with AQI simulation.
+- **Fully Live Data**: Temperature, humidity, and wind speed from OpenWeatherMap; AQI from the nearest PM2.5 monitoring station via OpenAQ, converted using the EPA formula. OWM and OpenAQ are fetched independently so one failing doesn't affect the other.
 - **WebSocket Streaming**: Django Channels pushes a combined payload (global aggregate + all 5 city readings) every 5 seconds. The frontend shows a "WebSocket" or "Polling" badge to indicate the active connection mode.
-- **City Selector**: Dropdown in the chart controls lets you switch the time-series chart between any individual city or the global aggregate.
-- **Stateful Simulation Fallback**: When the API key is absent or a request fails, readings evolve from the previous persisted value using small random deltas — charts always show coherent trends, never random noise.
-- **Database Persistence**: Every reading is stored in SQLite (`SensorReading`, `SensorLocation`, `SensorLocationReading` models), enabling real historical data for exports and the rolling window chart.
+- **Compare Cities Mode**: Toggle the chart between single-city/all-metrics view and a per-metric/all-cities comparison, with each city rendered in a distinct color for at-a-glance spatial analysis.
+- **Alert Thresholds**: Collapsible panel lets users set per-metric limits. Alerts fire only on threshold crossings (not every push), appear as dismissible banners, and trigger browser notifications when permission is granted.
+- **City Selector**: Dropdown switches the single-city chart and metric cards between any of the five cities or the global aggregate.
+- **Stateful Simulation Fallback**: When an API key is absent or a request fails, readings evolve from the previous persisted value using small random deltas — charts always show coherent trends, never random noise.
+- **Database Persistence**: Every reading is stored in SQLite (`SensorReading`, `SensorLocation`, `SensorLocationReading` models), enabling real historical data for exports and rolling-window charts.
 - **Rolling Window Time Series**: Dynamic sliding window (1m / 5m / 15m / 1h) applied to persisted data so the chart reflects actual trends over time.
 - **Downloadable CSV History**: One click exports the exact window and city currently displayed, with precise timestamps.
 - **Geospatial Context**: Leaflet map with per-city markers, heat overlays scaled to temperature, and sparkline trend popups in each marker.
@@ -52,24 +54,27 @@ Atmosphere Analyzer streams live weather data for five US cities — New York, L
 
 ## Data Flow
 
-1. **OpenWeatherMap API** (or stateful simulation fallback) produces a reading for each city on every cycle.
-2. **Django Channels consumer** calls the data source, saves each reading to the database, and broadcasts the full payload over WebSocket every 5 seconds.
-3. **React Dashboard** receives the WebSocket message, appends readings to per-city history, and re-renders the chart, metric cards, and map.
+1. **OpenWeatherMap API** fetches temperature, humidity, and wind speed for each city. **OpenAQ API** fetches PM2.5 from the nearest monitoring station and converts it to AQI via the EPA formula (cached 10 min). Both fall back to stateful simulation independently.
+2. **Django Channels consumer** calls both data sources, saves each reading to SQLite, and broadcasts the full payload (global + 5 cities) over WebSocket every 5 seconds.
+3. **React Dashboard** receives the WebSocket message, appends readings to per-city history, checks alert thresholds for crossings, and re-renders the chart, metric cards, and map.
 4. **HTTP polling** activates automatically as a fallback if the WebSocket connection cannot be established.
 5. **Export Layer** converts the currently visible chart window (city + time range) to a CSV download.
 
 ## Technical Highlights
 
-- **WebSocket with HTTP Fallback**: The frontend attempts a WebSocket connection on mount. If it fails or closes unexpectedly, it switches to 5-second HTTP polling with no user action required.
+- **Dual Live API Integration**: OWM and OpenAQ are fetched independently on every push cycle. Either can fail without affecting the other; each falls back to its own stateful simulation path.
+- **EPA AQI Conversion**: Raw PM2.5 concentrations (µg/m³) from OpenAQ are converted to AQI using the standard EPA linear interpolation formula across six breakpoint ranges. Results are cached for 10 minutes since real monitors only update every 10–60 minutes.
+- **Compare Cities Mode**: Toggling compare mode switches the chart dataset source from a single city's four-metric history to all five cities' history for one selected metric, each in a distinct color.
+- **Threshold Alerts on Crossing**: Alerts are only triggered when a value transitions from below to above a threshold, not on every push. Previous values are tracked in a ref to detect the crossing edge without adding state renders.
+- **WebSocket with HTTP Fallback**: The frontend attempts a WebSocket connection on mount. If it fails or closes, it switches to 5-second HTTP polling automatically with no user action required.
 - **Stateful Simulation**: Each simulated reading is derived from the previous database row using bounded random deltas, so charts always display smooth, realistic trends rather than random scatter.
 - **DB-Backed Rolling Window**: Because readings are persisted, the rolling window chart reflects real elapsed time — not just in-memory session data.
-- **City-Level Chart Selector**: Switching cities in the dropdown re-sources the chart, metric cards, and CSV export from that city's `locationHistory` without re-fetching from the server.
 - **ASGI + Daphne**: The Django app runs under Daphne (ASGI) rather than Gunicorn (WSGI), enabling concurrent WebSocket connections alongside standard HTTP requests.
 - **Geospatial Trends**: Marker popups include per-metric sparklines built from the last 20 readings stored in `locationHistory`, giving instant trend context without a separate API call.
 
 ## Architecture
 
-1. **Live Data (OpenWeatherMap API)**: Fetches real temperature, humidity, and wind speed for each city. Falls back to a stateful simulation when the API key is not set or a request fails.
+1. **Live Data (OpenWeatherMap + OpenAQ APIs)**: OWM fetches temperature, humidity, and wind speed; OpenAQ fetches PM2.5 from the nearest monitoring station within 50km and converts it to AQI using the EPA formula. Each source falls back to stateful simulation independently.
 2. **Backend API (Django + Django REST Framework)**: Exposes `/api/sensor-data/`, `/api/sensor-locations/`, and `/api/sensor-history/` endpoints alongside the WebSocket consumer.
 3. **WebSocket Layer (Django Channels + Daphne)**: A persistent consumer pushes combined sensor payloads to all connected clients every 5 seconds.
 4. **Database (SQLite)**: Stores `SensorReading`, `SensorLocation`, and `SensorLocationReading` records for history, exports, and stateful simulation continuity.
@@ -86,8 +91,9 @@ Atmosphere Analyzer streams live weather data for five US cities — New York, L
 - **Daphne**: ASGI server that handles both HTTP and WebSocket connections in production.
 - **SQLite**: Lightweight database for persisting all sensor readings.
 - **OpenWeatherMap API**: Source of live temperature, humidity, and wind speed data.
+- **OpenAQ API**: Source of real PM2.5 air quality readings, converted to AQI via the EPA formula.
 - **React**: Frontend library powering the interactive dashboard.
-- **Chart.js + react-chartjs-2**: Time-series chart with rolling window and city selector.
+- **Chart.js + react-chartjs-2**: Time-series chart with rolling window, city selector, and compare-cities mode.
 - **Leaflet + react-leaflet**: Interactive sensor map with heat overlays and sparkline popups.
 - **Axios**: HTTP client used for the polling fallback path.
 - **WhiteNoise**: Serves Django static files in production.
@@ -109,7 +115,8 @@ Atmosphere Analyzer streams live weather data for five US cities — New York, L
 | `DEBUG` | Backend | Set to `False` in production |
 | `ALLOWED_HOSTS` | Backend | e.g. `.onrender.com` |
 | `CORS_ALLOWED_ORIGINS` | Backend | Frontend URL for CORS |
-| `OPENWEATHER_API_KEY` | Backend | OpenWeatherMap API key (falls back to simulation if unset) |
+| `OPENWEATHER_API_KEY` | Backend | OpenWeatherMap API key — temperature, humidity, wind speed (falls back to simulation if unset) |
+| `OPENAQ_API_KEY` | Backend | OpenAQ API key — real PM2.5 → AQI (falls back to simulation if unset) |
 | `REACT_APP_API_URL` | Frontend | Backend service URL |
 
 ## Setup and Installation
@@ -119,6 +126,7 @@ Atmosphere Analyzer streams live weather data for five US cities — New York, L
 - Python 3.10+ and pip
 - Node.js and npm
 - (Optional) OpenWeatherMap API key — free tier at [openweathermap.org](https://openweathermap.org/api)
+- (Optional) OpenAQ API key — free tier at [openaq.org](https://openaq.org)
 
 ### Installation Steps
 
@@ -135,9 +143,10 @@ Atmosphere Analyzer streams live weather data for five US cities — New York, L
    python manage.py migrate
    python manage.py runserver
    ```
-   Optionally set `OPENWEATHER_API_KEY` in your environment for live weather data:
+   Optionally set API keys for live data:
    ```bash
-   export OPENWEATHER_API_KEY=your_key_here
+   export OPENWEATHER_API_KEY=your_owm_key     # live temperature, humidity, wind
+   export OPENAQ_API_KEY=your_openaq_key        # real PM2.5 → AQI
    ```
 
 3. **Frontend Setup**
