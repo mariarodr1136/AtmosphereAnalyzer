@@ -37,6 +37,16 @@
   border: 1px solid rgba(148, 163, 184, 0.4);
 }
 
+.control-select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
 .chart-container {
   height: 400px;
   width: 100%;

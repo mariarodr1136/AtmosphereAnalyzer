@@ -39,6 +39,7 @@ const Dashboard = () => {
     const [locationHistory, setLocationHistory] = useState({});
     const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
     const [connectionMode, setConnectionMode] = useState('connecting');
+    const [selectedCity, setSelectedCity] = useState(null);
     const pausedRef = useRef(false);
 
     useEffect(() => {
@@ -78,11 +79,13 @@ const Dashboard = () => {
                         humidity: [],
                         wind_speed: [],
                         air_quality: [],
+                        timestamps: [],
                     };
                     existing.temperature = [...existing.temperature, location.temperature].slice(-20);
                     existing.humidity = [...existing.humidity, location.humidity].slice(-20);
                     existing.wind_speed = [...existing.wind_speed, location.wind_speed].slice(-20);
                     existing.air_quality = [...existing.air_quality, location.air_quality].slice(-20);
+                    existing.timestamps = [...(existing.timestamps || []), Date.now()].slice(-20);
                     nextHistory[location.id] = existing;
                 });
                 return nextHistory;
@@ -137,31 +140,38 @@ const Dashboard = () => {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const toFahrenheit = celsius => (celsius * 9) / 5 + 32;
+    const cityHistory = selectedCity ? locationHistory[selectedCity] : null;
+    const activeTemps = cityHistory ? cityHistory.temperature : data.temperature;
+    const activeHumidity = cityHistory ? cityHistory.humidity : data.humidity;
+    const activeWind = cityHistory ? cityHistory.wind_speed : data.wind_speed;
+    const activeAir = cityHistory ? cityHistory.air_quality : data.air_quality;
+    const activeTimestamps = cityHistory ? (cityHistory.timestamps || []) : data.timestamps;
+
     const displayTemps = tempUnit === 'C'
-        ? data.temperature
-        : data.temperature.map(value => toFahrenheit(value));
+        ? activeTemps
+        : activeTemps.map(value => toFahrenheit(value));
 
     const pointsPerMinute = 12;
     const windowPoints = Math.max(1, windowMinutes * pointsPerMinute);
-    const windowedCelsius = data.temperature.slice(-windowPoints);
+    const windowedCelsius = activeTemps.slice(-windowPoints);
     const windowedFahrenheit = windowedCelsius.map(value => toFahrenheit(value));
     const windowedTemps = tempUnit === 'C' ? windowedCelsius : windowedFahrenheit;
-    const windowedHumidity = data.humidity.slice(-windowPoints);
-    const windowedWind = data.wind_speed.slice(-windowPoints);
-    const windowedAir = data.air_quality.slice(-windowPoints);
-    const windowedTimestamps = data.timestamps.slice(-windowPoints);
+    const windowedHumidity = activeHumidity.slice(-windowPoints);
+    const windowedWind = activeWind.slice(-windowPoints);
+    const windowedAir = activeAir.slice(-windowPoints);
+    const windowedTimestamps = activeTimestamps.slice(-windowPoints);
 
     const latestTemp = displayTemps.length > 0
         ? displayTemps[displayTemps.length - 1].toFixed(1)
         : '--';
-    const latestHumidity = data.humidity.length > 0
-        ? data.humidity[data.humidity.length - 1].toFixed(1)
+    const latestHumidity = activeHumidity.length > 0
+        ? activeHumidity[activeHumidity.length - 1].toFixed(1)
         : '--';
-    const latestWind = data.wind_speed.length > 0
-        ? data.wind_speed[data.wind_speed.length - 1].toFixed(1)
+    const latestWind = activeWind.length > 0
+        ? activeWind[activeWind.length - 1].toFixed(1)
         : '--';
-    const latestAirQuality = data.air_quality.length > 0
-        ? data.air_quality[data.air_quality.length - 1].toFixed(0)
+    const latestAirQuality = activeAir.length > 0
+        ? activeAir[activeAir.length - 1].toFixed(0)
         : '--';
 
     // Ensure that the labels are unique and that the chart data updates correctly
@@ -377,6 +387,17 @@ const Dashboard = () => {
                         °F
                     </button>
                 </div>
+                <select
+                    className="control-select"
+                    value={selectedCity || ''}
+                    onChange={e => setSelectedCity(e.target.value ? Number(e.target.value) : null)}
+                    aria-label="Select city"
+                >
+                    <option value="">Global Aggregate</option>
+                    {locations.map(loc => (
+                        <option key={loc.id} value={loc.id}>{loc.name}</option>
+                    ))}
+                </select>
                 <button className="control-button" onClick={handleDownloadCsv}>
                     Download CSV
                 </button>
