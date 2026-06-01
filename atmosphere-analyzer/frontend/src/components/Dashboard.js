@@ -19,7 +19,21 @@ import './Dashboard.css';
 const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
 const WS_URL = API_URL.replace(/^http/, 'ws') + '/ws/sensor/';
 
-// Register the necessary components
+const CITY_COLORS = [
+    'rgba(244, 63, 94, 1)',
+    'rgba(249, 115, 22, 1)',
+    'rgba(168, 85, 247, 1)',
+    'rgba(6, 182, 212, 1)',
+    'rgba(132, 204, 16, 1)',
+];
+
+const ALERT_METRICS = [
+    { key: 'temperature', label: 'Temperature', defaultThreshold: 35 },
+    { key: 'humidity',    label: 'Humidity',    defaultThreshold: 85 },
+    { key: 'wind_speed',  label: 'Wind Speed',  defaultThreshold: 10 },
+    { key: 'air_quality', label: 'Air Quality', defaultThreshold: 100 },
+];
+
 ChartJS.register(LineElement, CategoryScale, LinearScale, Title, Tooltip, Legend, PointElement);
 
 const Dashboard = () => {
@@ -40,11 +54,68 @@ const Dashboard = () => {
     const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
     const [connectionMode, setConnectionMode] = useState('connecting');
     const [selectedCity, setSelectedCity] = useState(null);
+    const [chartMode, setChartMode] = useState('single');
+    const [compareMetric, setCompareMetric] = useState('temperature');
+    const [alertThresholds, setAlertThresholds] = useState(
+        Object.fromEntries(ALERT_METRICS.map(m => [m.key, { enabled: false, value: m.defaultThreshold }]))
+    );
+    const [activeAlerts, setActiveAlerts] = useState([]);
+    const [alertsOpen, setAlertsOpen] = useState(false);
     const pausedRef = useRef(false);
+    const alertThresholdsRef = useRef(alertThresholds);
+    const tempUnitRef = useRef(tempUnit);
+    const prevLocationsRef = useRef({});
+
+    useEffect(() => { pausedRef.current = isPaused; }, [isPaused]);
+    useEffect(() => { alertThresholdsRef.current = alertThresholds; }, [alertThresholds]);
+    useEffect(() => { tempUnitRef.current = tempUnit; }, [tempUnit]);
 
     useEffect(() => {
-        pausedRef.current = isPaused;
-    }, [isPaused]);
+        if (locations.length === 0) return;
+        const thresholds = alertThresholdsRef.current;
+        const unit = tempUnitRef.current;
+        const newAlerts = [];
+
+        locations.forEach(location => {
+            const prev = prevLocationsRef.current[location.id];
+            ALERT_METRICS.forEach(({ key, label }) => {
+                const cfg = thresholds[key];
+                if (!cfg?.enabled) return;
+                let val = location[key];
+                let prevVal = prev != null ? prev[key] : null;
+                if (key === 'temperature' && unit === 'F') {
+                    val = (val * 9) / 5 + 32;
+                    if (prevVal != null) prevVal = (prevVal * 9) / 5 + 32;
+                }
+                if (val > cfg.value && (prevVal == null || prevVal <= cfg.value)) {
+                    const unitStr = key === 'temperature' ? `°${unit}` : key === 'humidity' ? '%' : key === 'wind_speed' ? ' m/s' : ' AQI';
+                    newAlerts.push({
+                        id: `${location.id}-${key}-${Date.now()}`,
+                        city: location.name,
+                        metric: label,
+                        value: val.toFixed(key === 'air_quality' ? 0 : 1),
+                        threshold: cfg.value,
+                        unit: unitStr,
+                    });
+                }
+            });
+            prevLocationsRef.current[location.id] = { ...location };
+        });
+
+        if (newAlerts.length > 0) {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+            newAlerts.forEach(a => {
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification(`${a.metric} Alert — ${a.city}`, {
+                        body: `${a.metric} reached ${a.value}${a.unit} (threshold: ${a.threshold}${a.unit})`,
+                    });
+                }
+            });
+            setActiveAlerts(prev => [...newAlerts, ...prev].slice(0, 8));
+        }
+    }, [locations]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         let ws = null;
@@ -174,58 +245,70 @@ const Dashboard = () => {
         ? activeAir[activeAir.length - 1].toFixed(0)
         : '--';
 
-    // Ensure that the labels are unique and that the chart data updates correctly
-    const chartData = {
-        labels: windowedTimestamps.map(timestamp =>
-            new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    const singleChartData = {
+        labels: windowedTimestamps.map(ts =>
+            new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
         ),
         datasets: [
-            {
-                label: `Temperature (\u00B0${tempUnit})`,
-                data: windowedTemps,
-                borderColor: 'rgba(255, 99, 132, 1)',
-                fill: false,
-                lineTension: 0,
-            },
-            {
-                label: 'Humidity (%)',
-                data: windowedHumidity,
-                borderColor: 'rgba(54, 162, 235, 1)',
-                fill: false,
-                lineTension: 0,
-            },
-            {
-                label: 'Wind Speed (m/s)',
-                data: windowedWind,
-                borderColor: 'rgba(34, 197, 94, 1)',
-                fill: false,
-                lineTension: 0,
-            },
-            {
-                label: 'Air Quality (AQI)',
-                data: windowedAir,
-                borderColor: 'rgba(234, 179, 8, 1)',
-                fill: false,
-                lineTension: 0,
-            },
+            { label: `Temperature (\u00B0${tempUnit})`, data: windowedTemps,    borderColor: 'rgba(255, 99, 132, 1)', fill: false, lineTension: 0 },
+            { label: 'Humidity (%)',                    data: windowedHumidity, borderColor: 'rgba(54, 162, 235, 1)', fill: false, lineTension: 0 },
+            { label: 'Wind Speed (m/s)',                data: windowedWind,     borderColor: 'rgba(34, 197, 94, 1)',  fill: false, lineTension: 0 },
+            { label: 'Air Quality (AQI)',               data: windowedAir,      borderColor: 'rgba(234, 179, 8, 1)', fill: false, lineTension: 0 },
         ],
     };
 
+    const compareTimestamps = (() => {
+        const ids = Object.keys(locationHistory);
+        if (ids.length === 0) return [];
+        return (locationHistory[ids[0]].timestamps || []).slice(-windowPoints);
+    })();
+
+    const compareMetricLabel = {
+        temperature: `Temperature (\u00B0${tempUnit})`,
+        humidity: 'Humidity (%)',
+        wind_speed: 'Wind Speed (m/s)',
+        air_quality: 'Air Quality (AQI)',
+    }[compareMetric];
+
+    const compareChartData = {
+        labels: compareTimestamps.map(ts =>
+            new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        ),
+        datasets: locations.map((loc, i) => {
+            const hist = locationHistory[loc.id];
+            let series = hist ? (hist[compareMetric] || []) : [];
+            if (compareMetric === 'temperature' && tempUnit === 'F') {
+                series = series.map(v => (v * 9) / 5 + 32);
+            }
+            return {
+                label: loc.name,
+                data: series.slice(-windowPoints),
+                borderColor: CITY_COLORS[i % CITY_COLORS.length],
+                fill: false,
+                lineTension: 0,
+            };
+        }),
+    };
+
+    const activeChartData = chartMode === 'compare' ? compareChartData : singleChartData;
+
     const chartOptions = {
+        plugins: {
+            title: {
+                display: chartMode === 'compare',
+                text: chartMode === 'compare' ? `${compareMetricLabel} \u2014 All Cities` : '',
+                color: 'inherit',
+                font: { size: 14 },
+            },
+        },
         scales: {
             x: {
                 position: 'bottom',
-                title: {
-                    display: true,
-                    text: 'Time',
-                },
+                title: { display: true, text: 'Time' },
             },
             y: {
                 beginAtZero: true,
-                title: {
-                    display: true,
-                    text: 'Values',
-                },
+                title: { display: true, text: chartMode === 'compare' ? compareMetricLabel : 'Values' },
             },
         },
         responsive: true,
@@ -387,25 +470,107 @@ const Dashboard = () => {
                         °F
                     </button>
                 </div>
-                <select
-                    className="control-select"
-                    value={selectedCity || ''}
-                    onChange={e => setSelectedCity(e.target.value ? Number(e.target.value) : null)}
-                    aria-label="Select city"
+                <button
+                    className={`control-button ${chartMode === 'compare' ? 'is-active' : ''}`}
+                    onClick={() => setChartMode(prev => prev === 'compare' ? 'single' : 'compare')}
                 >
-                    <option value="">Global Aggregate</option>
-                    {locations.map(loc => (
-                        <option key={loc.id} value={loc.id}>{loc.name}</option>
-                    ))}
-                </select>
+                    Compare Cities
+                </button>
+                {chartMode === 'compare' && (
+                    <div className="window-toggle" role="group" aria-label="Compare metric">
+                        {ALERT_METRICS.map(({ key, label }) => (
+                            <button
+                                key={key}
+                                className={`control-button ${compareMetric === key ? 'is-active' : ''}`}
+                                onClick={() => setCompareMetric(key)}
+                                aria-pressed={compareMetric === key}
+                            >
+                                {label.split(' ')[0]}
+                            </button>
+                        ))}
+                    </div>
+                )}
+                {chartMode === 'single' && (
+                    <select
+                        className="control-select"
+                        value={selectedCity || ''}
+                        onChange={e => setSelectedCity(e.target.value ? Number(e.target.value) : null)}
+                        aria-label="Select city"
+                    >
+                        <option value="">Global Aggregate</option>
+                        {locations.map(loc => (
+                            <option key={loc.id} value={loc.id}>{loc.name}</option>
+                        ))}
+                    </select>
+                )}
                 <button className="control-button" onClick={handleDownloadCsv}>
                     Download CSV
                 </button>
             </div>
+            <div className="alert-panel">
+                <button
+                    className="alert-panel-toggle"
+                    onClick={() => setAlertsOpen(prev => !prev)}
+                    aria-expanded={alertsOpen}
+                >
+                    <span>Alert Thresholds</span>
+                    <span>{alertsOpen ? '▲' : '▼'}</span>
+                </button>
+                {alertsOpen && (
+                    <div className="alert-panel-body">
+                        {ALERT_METRICS.map(({ key, label }) => (
+                            <div className="alert-row" key={key}>
+                                <label className="alert-row-label">
+                                    <input
+                                        type="checkbox"
+                                        checked={alertThresholds[key].enabled}
+                                        onChange={e => setAlertThresholds(prev => ({
+                                            ...prev,
+                                            [key]: { ...prev[key], enabled: e.target.checked },
+                                        }))}
+                                    />
+                                    {key === 'temperature' ? `${label} (°${tempUnit})` : label}
+                                </label>
+                                <input
+                                    type="number"
+                                    className="alert-threshold-input"
+                                    value={alertThresholds[key].value}
+                                    disabled={!alertThresholds[key].enabled}
+                                    onChange={e => setAlertThresholds(prev => ({
+                                        ...prev,
+                                        [key]: { ...prev[key], value: Number(e.target.value) },
+                                    }))}
+                                />
+                                <span className="alert-unit">
+                                    {key === 'temperature' ? `°${tempUnit}` : key === 'humidity' ? '%' : key === 'wind_speed' ? 'm/s' : 'AQI'}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+            {activeAlerts.length > 0 && (
+                <div className="alert-banners">
+                    {activeAlerts.map(alert => (
+                        <div className="alert-banner" key={alert.id}>
+                            <span className="alert-banner-text">
+                                ⚠ <strong>{alert.city}</strong> — {alert.metric} reached {alert.value}{alert.unit} (threshold: {alert.threshold}{alert.unit})
+                            </span>
+                            <button
+                                className="alert-banner-dismiss"
+                                onClick={() => setActiveAlerts(prev => prev.filter(a => a.id !== alert.id))}
+                                aria-label="Dismiss alert"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
             {loading && data.temperature.length === 0 && <p>Loading data...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
             <div className="chart-container">
-                <Line data={chartData} options={chartOptions} />
+                <Line data={activeChartData} options={chartOptions} />
             </div>
 
             <div className="current-readings">
