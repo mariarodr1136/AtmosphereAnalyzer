@@ -16,6 +16,9 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './Dashboard.css';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+const WS_URL = API_URL.replace(/^http/, 'ws') + '/ws/sensor/';
+
 // Register the necessary components
 ChartJS.register(LineElement, CategoryScale, LinearScale, Title, Tooltip, Legend, PointElement);
 
@@ -35,44 +38,32 @@ const Dashboard = () => {
     const [locations, setLocations] = useState([]);
     const [locationHistory, setLocationHistory] = useState({});
     const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
+    const [connectionMode, setConnectionMode] = useState('connecting');
     const pausedRef = useRef(false);
 
     useEffect(() => {
         pausedRef.current = isPaused;
     }, [isPaused]);
 
-    const fetchData = async () => {
-        try {
-            if (pausedRef.current) {
-                return;
-            }
-            setLoading(true);
-            const apiUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
-            const response = await axios.get(`${apiUrl}/api/sensor-data/`);
-            setData(prevData => ({
-                temperature: [...prevData.temperature, response.data.temperature],
-                humidity: [...prevData.humidity, response.data.humidity],
-                wind_speed: [...prevData.wind_speed, response.data.wind_speed],
-                air_quality: [...prevData.air_quality, response.data.air_quality],
-                timestamps: [...prevData.timestamps, Date.now()],
+    useEffect(() => {
+        let ws = null;
+        let pollInterval = null;
+
+        const applyReading = (sensorData) => {
+            if (pausedRef.current) return;
+            setData(prev => ({
+                temperature: [...prev.temperature, sensorData.temperature],
+                humidity: [...prev.humidity, sensorData.humidity],
+                wind_speed: [...prev.wind_speed, sensorData.wind_speed],
+                air_quality: [...prev.air_quality, sensorData.air_quality],
+                timestamps: [...prev.timestamps, Date.now()],
             }));
             setLastUpdatedAt(Date.now());
             setLoading(false);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            setError('Failed to fetch data. Please try again later.');
-            setLoading(false);
-        }
-    };
+        };
 
-    const fetchLocations = async () => {
-        try {
-            if (pausedRef.current) {
-                return;
-            }
-            const apiUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
-            const response = await axios.get(`${apiUrl}/api/sensor-locations/`);
-            const fetchedLocations = response.data.locations || [];
+        const applyLocations = (fetchedLocations) => {
+            if (pausedRef.current) return;
             setLocations(fetchedLocations);
             setLastUpdatedAt(Date.now());
             setLocationHistory(prevHistory => {
@@ -88,9 +79,6 @@ const Dashboard = () => {
                         wind_speed: [],
                         air_quality: [],
                     };
-                    existing.name = location.name;
-                    existing.latitude = location.latitude;
-                    existing.longitude = location.longitude;
                     existing.temperature = [...existing.temperature, location.temperature].slice(-20);
                     existing.humidity = [...existing.humidity, location.humidity].slice(-20);
                     existing.wind_speed = [...existing.wind_speed, location.wind_speed].slice(-20);
@@ -99,20 +87,54 @@ const Dashboard = () => {
                 });
                 return nextHistory;
             });
-        } catch (locationsError) {
-            console.error('Error fetching locations:', locationsError);
-        }
-    };
+        };
 
-    useEffect(() => {
-        fetchData(); // Initial data fetch
-        fetchLocations();
-        const interval = setInterval(() => {
-            fetchData();
-            fetchLocations();
-        }, 5000); // Polling every 5 seconds
-        return () => clearInterval(interval); // Cleanup on component unmount
-    }, []);
+        const startPolling = () => {
+            if (pollInterval) return;
+            setConnectionMode('polling');
+            const poll = async () => {
+                if (pausedRef.current) return;
+                try {
+                    const [sensorRes, locRes] = await Promise.all([
+                        axios.get(`${API_URL}/api/sensor-data/`),
+                        axios.get(`${API_URL}/api/sensor-locations/`),
+                    ]);
+                    applyReading(sensorRes.data);
+                    applyLocations(locRes.data.locations || []);
+                    setError(null);
+                } catch {
+                    setError('Failed to fetch data. Retrying...');
+                    setLoading(false);
+                }
+            };
+            poll();
+            pollInterval = setInterval(poll, 5000);
+        };
+
+        const connectWs = () => {
+            ws = new WebSocket(WS_URL);
+            ws.onopen = () => {
+                setConnectionMode('live');
+                setError(null);
+            };
+            ws.onmessage = (event) => {
+                const payload = JSON.parse(event.data);
+                if (payload.type === 'sensor_update') {
+                    applyReading(payload.sensor_data);
+                    applyLocations(payload.locations || []);
+                }
+            };
+            ws.onerror = () => ws.close();
+            ws.onclose = () => startPolling();
+        };
+
+        connectWs();
+
+        return () => {
+            if (ws) ws.close();
+            if (pollInterval) clearInterval(pollInterval);
+        };
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const toFahrenheit = celsius => (celsius * 9) / 5 + 32;
     const displayTemps = tempUnit === 'C'
@@ -293,7 +315,14 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard">
-            <h2>Environmental Metrics</h2>
+            <div className="dashboard-title-row">
+                <h2>Environmental Metrics</h2>
+                <span className={`connection-badge connection-badge--${connectionMode}`}>
+                    {connectionMode === 'live' && 'WebSocket'}
+                    {connectionMode === 'polling' && 'Polling'}
+                    {connectionMode === 'connecting' && 'Connecting…'}
+                </span>
+            </div>
             <div className="dashboard-controls">
                 <button
                     className={`control-button ${isPaused ? 'is-paused' : ''}`}

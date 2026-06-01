@@ -1,75 +1,47 @@
-import random
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
+from .data_sources import SENSOR_LOCATIONS, get_aggregated_reading, get_location_reading
+from .models import SensorLocation, SensorLocationReading, SensorReading
 
 
 @api_view(['GET'])
 def sensor_data(request):
-    # Simulate sensor data
-    data = {
-        'temperature': random.uniform(15.0, 30.0),
-        'humidity': random.uniform(30.0, 90.0),
-        'wind_speed': random.uniform(0.5, 12.0),
-        'air_quality': random.uniform(0.0, 200.0),
-    }
-
-    return Response(data)
+    reading = get_aggregated_reading()
+    SensorReading.objects.create(**reading, source='simulated')
+    return Response(reading)
 
 
 @api_view(['GET'])
 def sensor_locations(request):
-    # Simulated sensor locations
-    locations = [
-        {
-            'id': 1,
-            'name': 'Central Park',
-            'latitude': 40.7812,
-            'longitude': -73.9665,
-            'temperature': random.uniform(15.0, 30.0),
-            'humidity': random.uniform(30.0, 90.0),
-            'wind_speed': random.uniform(0.5, 12.0),
-            'air_quality': random.uniform(0.0, 200.0),
-        },
-        {
-            'id': 2,
-            'name': 'Downtown LA',
-            'latitude': 34.0522,
-            'longitude': -118.2437,
-            'temperature': random.uniform(15.0, 30.0),
-            'humidity': random.uniform(30.0, 90.0),
-            'wind_speed': random.uniform(0.5, 12.0),
-            'air_quality': random.uniform(0.0, 200.0),
-        },
-        {
-            'id': 3,
-            'name': 'Chicago Loop',
-            'latitude': 41.8837,
-            'longitude': -87.6325,
-            'temperature': random.uniform(15.0, 30.0),
-            'humidity': random.uniform(30.0, 90.0),
-            'wind_speed': random.uniform(0.5, 12.0),
-            'air_quality': random.uniform(0.0, 200.0),
-        },
-        {
-            'id': 4,
-            'name': 'Miami Beach',
-            'latitude': 25.7907,
-            'longitude': -80.1300,
-            'temperature': random.uniform(15.0, 30.0),
-            'humidity': random.uniform(30.0, 90.0),
-            'wind_speed': random.uniform(0.5, 12.0),
-            'air_quality': random.uniform(0.0, 200.0),
-        },
-        {
-            'id': 5,
-            'name': 'Seattle Center',
-            'latitude': 47.6205,
-            'longitude': -122.3493,
-            'temperature': random.uniform(15.0, 30.0),
-            'humidity': random.uniform(30.0, 90.0),
-            'wind_speed': random.uniform(0.5, 12.0),
-            'air_quality': random.uniform(0.0, 200.0),
-        },
-    ]
-
+    locations = []
+    for loc_def in SENSOR_LOCATIONS:
+        loc_obj, _ = SensorLocation.objects.get_or_create(
+            location_id=loc_def['id'],
+            defaults={
+                'name': loc_def['name'],
+                'latitude': loc_def['latitude'],
+                'longitude': loc_def['longitude'],
+            },
+        )
+        reading, source = get_location_reading(loc_def)
+        SensorLocationReading.objects.create(location=loc_obj, source=source, **reading)
+        locations.append({
+            'id': loc_def['id'],
+            'name': loc_def['name'],
+            'latitude': loc_def['latitude'],
+            'longitude': loc_def['longitude'],
+            **reading,
+        })
     return Response({'locations': locations})
+
+
+@api_view(['GET'])
+def sensor_history(request):
+    limit = min(int(request.query_params.get('limit', 100)), 500)
+    readings = SensorReading.objects.order_by('timestamp')[:limit]
+    return Response({
+        'readings': list(readings.values(
+            'timestamp', 'temperature', 'humidity', 'wind_speed', 'air_quality', 'source'
+        ))
+    })
