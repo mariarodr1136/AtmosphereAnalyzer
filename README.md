@@ -14,9 +14,9 @@ Live Application: https://atmosphere-analyzer-dashboard.onrender.com/
 
 ---
 
-<img width="1452" height="696" alt="Screenshot 2026-03-19 at 3 58 41 PM" src="https://github.com/user-attachments/assets/262d6d8e-c5b9-448e-b8e8-a4fcfbd6c979" />
 
-<img width="1457" height="565" alt="Screenshot 2026-03-19 at 4 05 32 PM" src="https://github.com/user-attachments/assets/f0275efe-4e9d-4420-af65-818503b441a3" />
+https://github.com/user-attachments/assets/1660fe99-2f26-4ce7-b10a-1baf25fdb97b
+
 
 ---
 
@@ -71,6 +71,15 @@ Atmosphere Analyzer streams live environmental data for five US cities — New Y
 - **DB-Backed Rolling Window**: Because readings are persisted, the rolling window chart reflects real elapsed time — not just in-memory session data.
 - **ASGI + Daphne**: The Django app runs under Daphne (ASGI) rather than Gunicorn (WSGI), enabling concurrent WebSocket connections alongside standard HTTP requests.
 - **Geospatial Trends**: Marker popups include per-metric sparklines built from the last 20 readings stored in `locationHistory`, giving instant trend context without a separate API call.
+
+---
+
+<img width="1461" height="793" alt="Screenshot 2026-06-02 at 4 15 44 PM" src="https://github.com/user-attachments/assets/399332aa-b215-493d-8fa3-fe81bf733a83" />
+
+
+<img width="1457" height="565" alt="Screenshot 2026-03-19 at 4 05 32 PM" src="https://github.com/user-attachments/assets/f0275efe-4e9d-4420-af65-818503b441a3" />
+
+---
 
 ## Architecture
 
