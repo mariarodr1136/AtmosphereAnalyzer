@@ -15,7 +15,10 @@ Live Application: https://atmosphere-analyzer-dashboard.onrender.com/
 ---
 
 
-https://github.com/user-attachments/assets/1660fe99-2f26-4ce7-b10a-1baf25fdb97b
+
+
+https://github.com/user-attachments/assets/1e70043d-610c-44b3-bae9-1ccb0247b2ac
+
 
 
 ---
@@ -74,10 +77,11 @@ Atmosphere Analyzer streams live environmental data for five US cities — New Y
 
 ---
 
-<img width="1461" height="793" alt="Screenshot 2026-06-02 at 4 15 44 PM" src="https://github.com/user-attachments/assets/399332aa-b215-493d-8fa3-fe81bf733a83" />
+<img width="1470" height="799" alt="Screenshot 2026-06-15 at 6 29 29 PM" src="https://github.com/user-attachments/assets/f5099420-172a-4506-bffd-a8566745b542" />
 
+---
 
-<img width="1457" height="565" alt="Screenshot 2026-03-19 at 4 05 32 PM" src="https://github.com/user-attachments/assets/f0275efe-4e9d-4420-af65-818503b441a3" />
+<img width="1470" height="799" alt="Screenshot 2026-06-15 at 6 30 07 PM" src="https://github.com/user-attachments/assets/6e81c877-e62a-43df-beb4-89ec717e4dc4" />
 
 ---
 
