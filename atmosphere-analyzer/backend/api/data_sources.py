@@ -31,7 +31,9 @@ _PM25_BREAKPOINTS = [
     (250.5, 500.4, 301, 500),
 ]
 
+OWM_CACHE_TTL = 300  # 5 min — OWM free tier refreshes every 10 min
 _openaq_cache = {}  # location id -> {'aqi': float, 'expires_at': float}
+_owm_cache    = {}  # "city,country" -> {'data': dict, 'expires_at': float}
 
 
 def _pm25_to_aqi(pm25):
@@ -89,6 +91,11 @@ def _fetch_owm(city, country):
     """Returns temperature, humidity, wind_speed from OWM, or None on failure."""
     if not OWM_API_KEY:
         return None
+    cache_key = f'{city},{country}'
+    now = time.time()
+    cached = _owm_cache.get(cache_key)
+    if cached and now < cached['expires_at']:
+        return cached['data']
     try:
         q = f'{city},{country}' if country else city
         resp = requests.get(OWM_BASE, params={
@@ -98,11 +105,13 @@ def _fetch_owm(city, country):
         }, timeout=5)
         resp.raise_for_status()
         d = resp.json()
-        return {
+        result = {
             'temperature': d['main']['temp'],
             'humidity': float(d['main']['humidity']),
             'wind_speed': d['wind']['speed'],
         }
+        _owm_cache[cache_key] = {'data': result, 'expires_at': now + OWM_CACHE_TTL}
+        return result
     except Exception:
         return None
 
