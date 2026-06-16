@@ -62,7 +62,7 @@ Atmosphere Analyzer streams live environmental data for five US cities — New Y
 
 ## Data Flow
 
-1. **OpenWeatherMap API** fetches temperature, humidity, and wind speed for each city. **OpenAQ API** fetches PM2.5 from the nearest monitoring station and converts it to AQI via the EPA formula (cached 10 min). Both fall back to stateful simulation independently.
+1. **OpenWeatherMap API** fetches temperature, humidity, and wind speed for each city (cached 5 min per city — OWM free tier refreshes every 10 min). **OpenAQ API** fetches PM2.5 from the nearest monitoring station and converts it to AQI via the EPA formula (cached 10 min). Both fall back to stateful simulation independently.
 2. **WebSocket consumer** authenticates the token on connect, then every 5 seconds: calls both data sources, saves readings to SQLite, runs z-score anomaly detection per metric per city, writes anomaly events to `EventLog`, fetches any `CustomSensorLocation` rows, and broadcasts the full payload.
 3. **React Dashboard** receives the WebSocket message, appends readings to per-city history, checks alert thresholds for crossings, syncs state to URL params, and re-renders all panels.
 4. **HTTP polling** activates automatically as a fallback if the WebSocket connection cannot be established.
@@ -95,7 +95,8 @@ Connect with `?token=<uuid>` from `/api/auth/token/`. Omitting the token is allo
 - **CSS Custom Properties Theming**: All colors, shadows, and radii are CSS variables on `:root`. The `[data-theme="dark"]` attribute on `document.documentElement` swaps all of them instantly with no class toggling.
 - **Shareable URL Encoding**: A `useEffect` writes `city`, `metric`, `window`, `compare`, `compareMetric`, and `theme` to `URLSearchParams` on every state change. A `useMemo` reads them on mount to restore the saved view.
 - **Redis Channel Layer**: `channels_redis.core.RedisChannelLayer` is configured when `REDIS_URL` is set, enabling multiple backend instances to fan out WebSocket messages to all connected clients.
-- **Dual Live API Integration**: OWM and OpenAQ are fetched independently on every push cycle. Either can fail without affecting the other; each falls back to its own stateful simulation path.
+- **Dual Live API Integration**: OWM and OpenAQ are fetched independently. OWM weather responses are cached for 5 minutes per city (matching the API's actual refresh rate), reducing calls by ~60×. OpenAQ is cached for 10 minutes. Either source can fail without affecting the other; each falls back to its own stateful simulation path.
+- **Modular Frontend Architecture**: The React dashboard is split into 15 focused files under `src/components/dashboard/` — `constants.js`, `utils.js`, and one file per component (`DashNav`, `CitySearch`, `StatCards`, `ChartCard`, `ForecastCard`, `SensorMap`, `SidePanel`, `HeatmapCard`, `AlertsConfig`, plus primitive components `StatCard`, `Sparkline`, `TrendBadge`, `HeatmapGrid`). `Dashboard.js` is a pure state orchestrator; each panel owns its own local state and data fetching.
 - **EPA AQI Conversion**: Raw PM2.5 concentrations (µg/m³) from OpenAQ are converted to AQI using the standard EPA linear interpolation formula across six breakpoint ranges, cached 10 minutes.
 - **Threshold Alerts on Crossing**: Alerts trigger only when a value transitions from below to above a threshold. Previous values are tracked in a ref to detect the crossing edge without adding render cycles.
 - **WebSocket with HTTP Fallback**: The frontend attempts a WebSocket connection on mount. If it fails or closes, it switches to 5-second HTTP polling automatically.
