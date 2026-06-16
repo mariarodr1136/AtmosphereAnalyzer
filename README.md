@@ -176,7 +176,7 @@ Atmosphere Analyzer streams live environmental data for five US cities — New Y
 4. **Running Tests**
    ```bash
    cd backend
-   python manage.py test api
+   pytest
    ```
 
 ---
@@ -191,7 +191,7 @@ Feel free to submit issues or pull requests for improvements or bug fixes. All c
    ```
 3. Make your changes and ensure all tests pass:
    ```bash
-   python manage.py test api
+   pytest
    ```
 4. Commit and push:
    ```bash
