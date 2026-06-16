@@ -400,129 +400,6 @@ const Dashboard = () => {
     return (
         <div className="dashboard">
 
-            {/* ── LEFT SIDEBAR ── */}
-            <aside className="sidebar">
-                <div className="sidebar-top">
-                    <div className="sidebar-brand">
-                        <span className={`live-dot live-dot--${connectionMode}`} />
-                        <span className="live-label">
-                            {connectionMode === 'live' ? 'Live' : connectionMode === 'polling' ? 'Polling' : 'Connecting'}
-                        </span>
-                    </div>
-                    {lastUpdatedAt && (
-                        <span className="sidebar-updated">
-                            {new Date(lastUpdatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                        </span>
-                    )}
-                </div>
-
-                {/* Cities */}
-                <div className="sidebar-section">
-                    <div className="sidebar-label">Cities</div>
-                    <div className="sidebar-city-list">
-                        <button
-                            className={`city-row ${!selectedCity ? 'city-row--active' : ''}`}
-                            onClick={() => setSelectedCity(null)}
-                        >
-                            <span className="city-row-dot" style={{ background: '#475569' }} />
-                            <span className="city-row-name">All Cities</span>
-                        </button>
-                        {locations.map((loc, i) => (
-                            <button
-                                key={loc.id}
-                                className={`city-row ${selectedCity === loc.id ? 'city-row--active' : ''}`}
-                                onClick={() => setSelectedCity(selectedCity === loc.id ? null : loc.id)}
-                                style={selectedCity === loc.id ? { borderColor: CITY_COLORS[i % CITY_COLORS.length] } : {}}
-                            >
-                                <span className="city-row-dot" style={{ background: CITY_COLORS[i % CITY_COLORS.length] }} />
-                                <span className="city-row-name">{loc.name}</span>
-                                {loc.temperature != null && (
-                                    <span className="city-row-temp">
-                                        {(tempUnit === 'C' ? loc.temperature : toF(loc.temperature)).toFixed(0)}°
-                                    </span>
-                                )}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Window */}
-                <div className="sidebar-section">
-                    <div className="sidebar-label">Time Window</div>
-                    <div className="sidebar-pills">
-                        {[1, 5, 15, 60].map(m => (
-                            <button key={m} className={`pill ${windowMinutes === m ? 'pill--active' : ''}`} onClick={() => setWindowMinutes(m)}>
-                                {m < 60 ? `${m}m` : '1h'}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Temp unit */}
-                <div className="sidebar-section">
-                    <div className="sidebar-label">Temperature Unit</div>
-                    <div className="sidebar-pills">
-                        {['C', 'F'].map(u => (
-                            <button key={u} className={`pill ${tempUnit === u ? 'pill--active' : ''}`} onClick={() => setTempUnit(u)}>
-                                °{u}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Chart mode */}
-                <div className="sidebar-section">
-                    <div className="sidebar-label">Chart Mode</div>
-                    <div className="sidebar-pills">
-                        <button className={`pill ${chartMode === 'single' ? 'pill--active' : ''}`} onClick={() => setChartMode('single')}>Single</button>
-                        <button className={`pill ${chartMode === 'compare' ? 'pill--active' : ''}`} onClick={() => setChartMode('compare')}>Compare</button>
-                    </div>
-                    {chartMode === 'compare' && (
-                        <div className="sidebar-pills" style={{ marginTop: 8 }}>
-                            {ALERT_METRICS.map(({ key, label }) => (
-                                <button key={key} className={`pill pill--sm ${compareMetric === key ? 'pill--active' : ''}`} onClick={() => setCompareMetric(key)}>
-                                    {label.split(' ')[0]}
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* Alert thresholds */}
-                <div className="sidebar-section sidebar-section--grow">
-                    <div className="sidebar-label">Alert Thresholds</div>
-                    {ALERT_METRICS.map(({ key, label }) => (
-                        <div className="alert-threshold-row" key={key}>
-                            <label className="alert-threshold-label">
-                                <input
-                                    type="checkbox"
-                                    checked={alertThresholds[key].enabled}
-                                    onChange={e => setAlertThresholds(prev => ({ ...prev, [key]: { ...prev[key], enabled: e.target.checked } }))}
-                                />
-                                {key === 'temperature' ? `${label} °${tempUnit}` : label}
-                            </label>
-                            <input
-                                type="number"
-                                className="alert-threshold-val"
-                                value={alertThresholds[key].value}
-                                disabled={!alertThresholds[key].enabled}
-                                onChange={e => setAlertThresholds(prev => ({ ...prev, [key]: { ...prev[key], value: Number(e.target.value) } }))}
-                            />
-                        </div>
-                    ))}
-                </div>
-
-                {/* Footer */}
-                <div className="sidebar-footer">
-                    <button className={`sidebar-btn ${isPaused ? 'sidebar-btn--pause' : ''}`} onClick={() => setIsPaused(p => !p)}>
-                        {isPaused ? '▶ Resume' : '⏸ Pause'}
-                    </button>
-                    <button className="sidebar-btn sidebar-btn--export" onClick={handleDownloadCsv}>
-                        ↓ Export CSV
-                    </button>
-                </div>
-            </aside>
-
             {/* ── MAIN CONTENT ── */}
             <div className="main-content">
 
@@ -540,6 +417,139 @@ const Dashboard = () => {
                         ))}
                     </div>
                 )}
+
+                {/* ── CONTROLS BAR ── */}
+                <div className="controls-bar">
+                    <div className="controls-row controls-row--filters">
+
+                        <div className="controls-group">
+                            <span className="controls-label">Cities</span>
+                            <button className={`city-pill ${!selectedCity ? 'city-pill--active' : ''}`} onClick={() => setSelectedCity(null)}>
+                                <span className="city-row-dot" style={{ background: '#475569' }} />
+                                All
+                            </button>
+                            {locations.map((loc, i) => (
+                                <button
+                                    key={loc.id}
+                                    className={`city-pill ${selectedCity === loc.id ? 'city-pill--active' : ''}`}
+                                    onClick={() => setSelectedCity(selectedCity === loc.id ? null : loc.id)}
+                                    style={selectedCity === loc.id ? { borderColor: CITY_COLORS[i % CITY_COLORS.length] } : {}}
+                                >
+                                    <span className="city-row-dot" style={{ background: CITY_COLORS[i % CITY_COLORS.length] }} />
+                                    {loc.name}
+                                    {loc.temperature != null && (
+                                        <span className="city-pill-temp">{(tempUnit === 'C' ? loc.temperature : toF(loc.temperature)).toFixed(0)}°</span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="controls-sep" />
+
+                        <div className="controls-group">
+                            <span className="controls-label">Window</span>
+                            <div className="sidebar-pills">
+                                {[1, 5, 15, 60].map(m => (
+                                    <button key={m} className={`pill ${windowMinutes === m ? 'pill--active' : ''}`} onClick={() => setWindowMinutes(m)}>
+                                        {m < 60 ? `${m}m` : '1h'}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="controls-sep" />
+
+                        <div className="controls-group">
+                            <span className="controls-label">Temp</span>
+                            <div className="sidebar-pills">
+                                {['C', 'F'].map(u => (
+                                    <button key={u} className={`pill ${tempUnit === u ? 'pill--active' : ''}`} onClick={() => setTempUnit(u)}>
+                                        °{u}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="controls-sep" />
+
+                        <div className="controls-group">
+                            <span className="controls-label">Mode</span>
+                            <div className="sidebar-pills">
+                                <button className={`pill ${chartMode === 'single' ? 'pill--active' : ''}`} onClick={() => setChartMode('single')}>Single</button>
+                                <button className={`pill ${chartMode === 'compare' ? 'pill--active' : ''}`} onClick={() => setChartMode('compare')}>Compare</button>
+                            </div>
+                            {chartMode === 'compare' && (
+                                <div className="sidebar-pills">
+                                    {ALERT_METRICS.map(({ key, label }) => (
+                                        <button key={key} className={`pill pill--sm ${compareMetric === key ? 'pill--active' : ''}`} onClick={() => setCompareMetric(key)}>
+                                            {label.split(' ')[0]}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="controls-sep" />
+
+                        <div className="controls-group">
+                            <span className="controls-label">Alerts</span>
+                            {ALERT_METRICS.map(({ key, label }) => (
+                                <div className="alert-inline" key={key}>
+                                    <label className="alert-inline-label">
+                                        <input
+                                            type="checkbox"
+                                            checked={alertThresholds[key].enabled}
+                                            onChange={e => setAlertThresholds(prev => ({ ...prev, [key]: { ...prev[key], enabled: e.target.checked } }))}
+                                        />
+                                        {key === 'temperature' ? `T °${tempUnit}` : key === 'humidity' ? 'Hum' : key === 'wind_speed' ? 'Wind' : 'AQI'}
+                                    </label>
+                                    <input
+                                        type="number"
+                                        className="alert-threshold-val"
+                                        value={alertThresholds[key].value}
+                                        disabled={!alertThresholds[key].enabled}
+                                        onChange={e => setAlertThresholds(prev => ({ ...prev, [key]: { ...prev[key], value: Number(e.target.value) } }))}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+
+                    </div>
+                </div>
+
+                {/* ── CHART ── */}
+                <div className="chart-card">
+                    <div className="chart-card-header">
+                        <div>
+                            <div className="chart-title-row">
+                                <h3 className="chart-card-title">
+                                    {chartMode === 'compare'
+                                        ? `${compareMetricLabel} — All Cities`
+                                        : selectedCity
+                                            ? locations.find(l => l.id === selectedCity)?.name || 'City'
+                                            : 'All Metrics'}
+                                </h3>
+                                <div className="controls-group">
+                                    <span className={`live-dot live-dot--${connectionMode}`} />
+                                    <span className="live-label">
+                                        {connectionMode === 'live' ? 'Live' : connectionMode === 'polling' ? 'Polling' : 'Connecting'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="chart-card-actions">
+                            <button className={`sidebar-btn ${isPaused ? 'sidebar-btn--pause' : ''}`} onClick={() => setIsPaused(p => !p)}>
+                                {isPaused ? '▶ Resume' : '⏸ Pause'}
+                            </button>
+                            <button className="sidebar-btn sidebar-btn--export" onClick={handleDownloadCsv}>
+                                ↓ Export
+                            </button>
+                        </div>
+                    </div>
+                    <div className="chart-wrap">
+                        <Line data={activeChartData} options={chartOptions} />
+                    </div>
+                </div>
 
                 {/* ── STAT CARDS ── */}
                 <div className="stat-grid">
@@ -629,25 +639,6 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* ── CHART ── */}
-                <div className="chart-card">
-                    <div className="chart-card-header">
-                        <div>
-                            <h3 className="chart-card-title">
-                                {chartMode === 'compare'
-                                    ? `${compareMetricLabel} — All Cities`
-                                    : selectedCity
-                                        ? locations.find(l => l.id === selectedCity)?.name || 'City'
-                                        : 'All Metrics'}
-                            </h3>
-                            <p className="chart-card-sub">Last {windowMinutes < 60 ? `${windowMinutes} min` : '1 hour'}</p>
-                        </div>
-                    </div>
-                    <div className="chart-wrap">
-                        <Line data={activeChartData} options={chartOptions} />
-                    </div>
-                </div>
-
                 {/* ── BOTTOM ROW: MAP + LIVE SENSORS ── */}
                 <div className="bottom-row">
 
@@ -660,7 +651,7 @@ const Dashboard = () => {
                             <MapContainer center={mapCenter} zoom={6} scrollWheelZoom={false}>
                                 <TileLayer
                                     attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-                                    url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                                    url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png"
                                 />
                                 {locations.map(loc => {
                                     const displayTemp = tempUnit === 'C' ? loc.temperature : toF(loc.temperature);
