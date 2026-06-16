@@ -73,10 +73,23 @@ TEMPLATES = [
 WSGI_APPLICATION = 'atmosphere_analyzer.wsgi.application'
 ASGI_APPLICATION = 'atmosphere_analyzer.asgi.application'
 
+_REDIS_URL = os.environ.get('REDIS_URL', '')
 CHANNEL_LAYERS = {
     'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {'hosts': [_REDIS_URL]},
+    } if _REDIS_URL else {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
     }
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '120/min',
+    },
 }
 
 # Database

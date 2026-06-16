@@ -6,6 +6,8 @@ import requests
 
 OWM_API_KEY = os.environ.get('OPENWEATHER_API_KEY', '')
 OWM_BASE = 'https://api.openweathermap.org/data/2.5/weather'
+OWM_FORECAST_BASE = 'https://api.openweathermap.org/data/2.5/forecast'
+OWM_GEO_BASE = 'https://api.openweathermap.org/geo/1.0/direct'
 
 OPENAQ_API_KEY = os.environ.get('OPENAQ_API_KEY', '')
 OPENAQ_BASE = 'https://api.openaq.org/v3'
@@ -29,7 +31,7 @@ _PM25_BREAKPOINTS = [
     (250.5, 500.4, 301, 500),
 ]
 
-_openaq_cache = {}  # location_def id -> {'aqi': float, 'expires_at': float}
+_openaq_cache = {}  # location id -> {'aqi': float, 'expires_at': float}
 
 
 def _pm25_to_aqi(pm25):
@@ -88,8 +90,9 @@ def _fetch_owm(city, country):
     if not OWM_API_KEY:
         return None
     try:
+        q = f'{city},{country}' if country else city
         resp = requests.get(OWM_BASE, params={
-            'q': f'{city},{country}',
+            'q': q,
             'appid': OWM_API_KEY,
             'units': 'metric',
         }, timeout=5)
@@ -129,7 +132,7 @@ def get_aggregated_reading():
 def get_location_reading(location_def):
     from .models import SensorLocation, SensorLocationReading
 
-    weather = _fetch_owm(location_def['city'], location_def['country'])
+    weather = _fetch_owm(location_def['city'], location_def.get('country', ''))
     aqi = _fetch_openaq_aqi(location_def)
 
     if weather or aqi is not None:
@@ -167,3 +170,70 @@ def get_location_reading(location_def):
             }, 'simulated'
 
     return _seed_reading(), 'simulated'
+
+
+def get_forecast(city, country=''):
+    """Fetch 5-day / 3-hour forecast from OWM. Returns grouped daily summary list or None."""
+    if not OWM_API_KEY:
+        return None
+    try:
+        q = f'{city},{country}' if country else city
+        resp = requests.get(OWM_FORECAST_BASE, params={
+            'q': q,
+            'appid': OWM_API_KEY,
+            'units': 'metric',
+            'cnt': 40,
+        }, timeout=8)
+        resp.raise_for_status()
+        items = resp.json().get('list', [])
+        from collections import defaultdict
+        days = defaultdict(list)
+        for item in items:
+            day = item['dt_txt'][:10]
+            days[day].append(item)
+        result = []
+        for day, day_items in list(days.items())[:5]:
+            temps = [i['main']['temp'] for i in day_items]
+            conditions = [i['weather'][0]['main'] for i in day_items]
+            icons = [i['weather'][0]['icon'] for i in day_items]
+            humidity = [i['main']['humidity'] for i in day_items]
+            wind = [i['wind']['speed'] for i in day_items]
+            result.append({
+                'date': day,
+                'temp_min': round(min(temps), 1),
+                'temp_max': round(max(temps), 1),
+                'condition': max(set(conditions), key=conditions.count),
+                'icon': icons[len(icons) // 2],
+                'humidity_avg': round(sum(humidity) / len(humidity), 1),
+                'wind_avg': round(sum(wind) / len(wind), 1),
+            })
+        return result
+    except Exception:
+        return None
+
+
+def geocode_city(query, limit=5):
+    """Geocode a city name via OWM Geocoding API. Returns list of results or []."""
+    if not OWM_API_KEY:
+        return []
+    try:
+        resp = requests.get(OWM_GEO_BASE, params={
+            'q': query,
+            'limit': limit,
+            'appid': OWM_API_KEY,
+        }, timeout=5)
+        resp.raise_for_status()
+        return resp.json()
+    except Exception:
+        return []
+
+
+def compute_z_score(value, history):
+    """Return z-score of value relative to history. Returns 0.0 if insufficient data."""
+    if len(history) < 5:
+        return 0.0
+    mean = sum(history) / len(history)
+    std = (sum((x - mean) ** 2 for x in history) / len(history)) ** 0.5
+    if std < 0.001:
+        return 0.0
+    return abs(value - mean) / std

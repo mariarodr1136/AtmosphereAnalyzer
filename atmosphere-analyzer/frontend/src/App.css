@@ -1,8 +1,9 @@
 .App {
   text-align: center;
   min-height: 100vh;
-  background: transparent;
-  color: #0f172a;
+  background: var(--bg-surface, transparent);
+  color: var(--text-primary, #0f172a);
+  transition: background 0.25s, color 0.25s;
 }
 
 /* ── Hero ── */
@@ -216,13 +217,27 @@
 
 /* ── Dashboard wrapper ── */
 .dashboard-wrapper {
-  background: transparent;
+  background: var(--bg-surface, #f8fafc);
   position: relative;
+  transition: background 0.25s;
 }
 
 .dashboard-wrapper::before {
   content: '';
   display: block;
   height: 1px;
-  background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+  background: linear-gradient(90deg, transparent, var(--border, #e2e8f0), transparent);
 }
+
+/* ── Dark hero ── */
+[data-theme="dark"] .App-header {
+  background:
+    radial-gradient(ellipse at 50% -10%, rgba(99, 102, 241, 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 85%, rgba(16, 185, 129, 0.14) 0%, transparent 45%),
+    radial-gradient(ellipse at 15% 75%, rgba(168, 85, 247, 0.14) 0%, transparent 40%),
+    linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #052e16 100%);
+}
+
+[data-theme="dark"] .hero-title { color: #f1f5f9; }
+[data-theme="dark"] .hero-subtitle { color: #94a3b8; }
+[data-theme="dark"] .hero-pill { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: #94a3b8; }
