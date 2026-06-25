@@ -106,7 +106,8 @@ Connect with `?token=<uuid>` from `/api/auth/token/`. Omitting the token is allo
 
 ---
 
-<img width="1470" height="799" alt="Screenshot 2026-06-15 at 6 29 29 PM" src="https://github.com/user-attachments/assets/f5099420-172a-4506-bffd-a8566745b542" />
+<img width="1470" height="800" alt="Screenshot 2026-06-25 at 5 10 32 PM" src="https://github.com/user-attachments/assets/f0ffcf70-6064-491e-9e64-bceb07e854a0" />
+
 
 ---
 
