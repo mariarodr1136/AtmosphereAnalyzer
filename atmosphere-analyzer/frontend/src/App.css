@@ -122,7 +122,7 @@
 
 .hero-subtitle {
   font-size: 1.05rem;
-  color: #475569;
+  color: #000000;
   line-height: 1.65;
   margin: 0;
   max-width: 520px;
@@ -141,10 +141,10 @@
   gap: 6px;
   padding: 8px 16px;
   border-radius: 10px;
-  background: rgba(15, 23, 42, 0.05);
-  border: 1px solid rgba(15, 23, 42, 0.09);
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.35);
   font-size: 0.8rem;
-  color: #475569;
+  color: #000000;
   font-weight: 500;
   white-space: nowrap;
 }
