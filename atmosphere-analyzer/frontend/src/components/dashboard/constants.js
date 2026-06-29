@@ -2,7 +2,7 @@ export const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
 export const WS_URL  = API_URL.replace(/^http/, 'ws') + '/ws/sensor/';
 
 export const CITY_COLORS = [
-  '#f43f5e', '#f97316', '#a855f7', '#06b6d4', '#84cc16',
+  '#2563eb', '#f59e0b', '#60a5fa', '#d97706', '#93c5fd',
 ];
 
 export const ALERT_METRICS = [
@@ -12,7 +12,3 @@ export const ALERT_METRICS = [
   { key: 'air_quality', label: 'Air Quality', defaultThreshold: 100 },
 ];
 
-export const CONDITION_ICONS = {
-  Clear: '☀️', Clouds: '☁️', Rain: '🌧️', Drizzle: '🌦️',
-  Thunderstorm: '⛈️', Snow: '❄️', Mist: '🌫️', Fog: '🌫️', Haze: '🌫️',
-};

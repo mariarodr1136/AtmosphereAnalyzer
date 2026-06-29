@@ -9,6 +9,23 @@ OWM_BASE = 'https://api.openweathermap.org/data/2.5/weather'
 OWM_FORECAST_BASE = 'https://api.openweathermap.org/data/2.5/forecast'
 OWM_GEO_BASE = 'https://api.openweathermap.org/geo/1.0/direct'
 
+OPENMETEO_GEO_BASE      = 'https://geocoding-api.open-meteo.com/v1/search'
+OPENMETEO_FORECAST_BASE = 'https://api.open-meteo.com/v1/forecast'
+
+_WMO_TO_CONDITION = {
+    0: 'Clear',
+    1: 'Clear',  2: 'Clouds',       3: 'Clouds',
+    45: 'Fog',   48: 'Fog',
+    51: 'Drizzle', 53: 'Drizzle',   55: 'Drizzle',
+    56: 'Drizzle', 57: 'Drizzle',
+    61: 'Rain',  63: 'Rain',        65: 'Rain',
+    66: 'Rain',  67: 'Rain',
+    71: 'Snow',  73: 'Snow',        75: 'Snow',    77: 'Snow',
+    80: 'Rain',  81: 'Rain',        82: 'Rain',
+    85: 'Snow',  86: 'Snow',
+    95: 'Thunderstorm', 96: 'Thunderstorm', 99: 'Thunderstorm',
+}
+
 OPENAQ_API_KEY = os.environ.get('OPENAQ_API_KEY', '')
 OPENAQ_BASE = 'https://api.openaq.org/v3'
 OPENAQ_CACHE_TTL = 600  # 10 min — real monitors report every 10–60 min anyway
@@ -181,44 +198,92 @@ def get_location_reading(location_def):
     return _seed_reading(), 'simulated'
 
 
-def get_forecast(city, country=''):
-    """Fetch 5-day / 3-hour forecast from OWM. Returns grouped daily summary list or None."""
-    if not OWM_API_KEY:
-        return None
+def _get_owm_forecast(city, country):
+    """OWM 3-hour forecast, grouped into daily summaries. Free tier caps at ~5 days."""
     try:
         q = f'{city},{country}' if country else city
         resp = requests.get(OWM_FORECAST_BASE, params={
-            'q': q,
-            'appid': OWM_API_KEY,
-            'units': 'metric',
-            'cnt': 40,
+            'q': q, 'appid': OWM_API_KEY, 'units': 'metric', 'cnt': 56,
         }, timeout=8)
         resp.raise_for_status()
         items = resp.json().get('list', [])
         from collections import defaultdict
         days = defaultdict(list)
         for item in items:
-            day = item['dt_txt'][:10]
-            days[day].append(item)
+            days[item['dt_txt'][:10]].append(item)
         result = []
-        for day, day_items in list(days.items())[:5]:
-            temps = [i['main']['temp'] for i in day_items]
+        for day, day_items in list(days.items())[:10]:
+            temps      = [i['main']['temp'] for i in day_items]
             conditions = [i['weather'][0]['main'] for i in day_items]
-            icons = [i['weather'][0]['icon'] for i in day_items]
-            humidity = [i['main']['humidity'] for i in day_items]
-            wind = [i['wind']['speed'] for i in day_items]
+            icons      = [i['weather'][0]['icon'] for i in day_items]
+            humidity   = [i['main']['humidity'] for i in day_items]
+            wind       = [i['wind']['speed'] for i in day_items]
             result.append({
-                'date': day,
-                'temp_min': round(min(temps), 1),
-                'temp_max': round(max(temps), 1),
-                'condition': max(set(conditions), key=conditions.count),
-                'icon': icons[len(icons) // 2],
+                'date':         day,
+                'temp_min':     round(min(temps), 1),
+                'temp_max':     round(max(temps), 1),
+                'condition':    max(set(conditions), key=conditions.count),
+                'icon':         icons[len(icons) // 2],
                 'humidity_avg': round(sum(humidity) / len(humidity), 1),
-                'wind_avg': round(sum(wind) / len(wind), 1),
+                'wind_avg':     round(sum(wind) / len(wind), 1),
             })
-        return result
+        return result or None
     except Exception:
         return None
+
+
+def _get_openmeteo_forecast(city, days=10):
+    """Open-Meteo forecast — free, no API key, up to 16 days."""
+    try:
+        geo = requests.get(OPENMETEO_GEO_BASE, params={
+            'name': city, 'count': 1, 'language': 'en', 'format': 'json',
+        }, timeout=5)
+        geo.raise_for_status()
+        results = geo.json().get('results', [])
+        if not results:
+            return None
+        lat = results[0]['latitude']
+        lon = results[0]['longitude']
+        tz  = results[0].get('timezone', 'America/New_York')
+
+        fc = requests.get(OPENMETEO_FORECAST_BASE, params={
+            'latitude':      lat,
+            'longitude':     lon,
+            'daily':         'weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,windspeed_10m_max',
+            'timezone':      tz,
+            'forecast_days': days,
+        }, timeout=8)
+        fc.raise_for_status()
+        d          = fc.json().get('daily', {})
+        dates      = d.get('time', [])
+        codes      = d.get('weathercode', [])
+        temp_max   = d.get('temperature_2m_max', [])
+        temp_min   = d.get('temperature_2m_min', [])
+        precip_pct = d.get('precipitation_probability_max', [])
+        wind       = d.get('windspeed_10m_max', [])
+
+        result = []
+        for i, date in enumerate(dates):
+            result.append({
+                'date':         date,
+                'temp_min':     round(temp_min[i], 1) if i < len(temp_min) and temp_min[i] is not None else 0.0,
+                'temp_max':     round(temp_max[i], 1) if i < len(temp_max) and temp_max[i] is not None else 0.0,
+                'condition':    _WMO_TO_CONDITION.get(int(codes[i]) if i < len(codes) and codes[i] is not None else 0, 'Clouds'),
+                'icon':         '',
+                'humidity_avg': float(precip_pct[i]) if i < len(precip_pct) and precip_pct[i] is not None else 0.0,
+                'wind_avg':     round(wind[i], 1) if i < len(wind) and wind[i] is not None else 0.0,
+            })
+        return result or None
+    except Exception:
+        return None
+
+
+def get_forecast(city, country=''):
+    """Fetch 10-day forecast. Uses Open-Meteo (free, no key, 10 days); falls back to OWM."""
+    om = _get_openmeteo_forecast(city, days=10)
+    if om:
+        return om
+    return _get_owm_forecast(city, country) if OWM_API_KEY else None
 
 
 def geocode_city(query, limit=5):

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Circle, MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import React, { useEffect } from 'react';
+import { Circle, MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { toF } from './utils';
@@ -26,6 +26,18 @@ const SPARK_KEYS = [
   ['AQI',   'air_quality', '#f59e0b'],
 ];
 
+const InvalidateSize = () => {
+  const map = useMap();
+  useEffect(() => {
+    const container = map.getContainer();
+    const ro = new ResizeObserver(() => map.invalidateSize());
+    ro.observe(container);
+    map.invalidateSize();
+    return () => ro.disconnect();
+  }, [map]);
+  return null;
+};
+
 const SensorMap = ({ locations, locHistory, tempUnit, isDark }) => {
   const center = locations.length ? [locations[0].latitude, locations[0].longitude] : [37.5, -96];
   const tileUrl = isDark
@@ -40,6 +52,7 @@ const SensorMap = ({ locations, locHistory, tempUnit, isDark }) => {
       </div>
       <div className="map-body">
         <MapContainer center={center} zoom={4} scrollWheelZoom={false}>
+          <InvalidateSize />
           <TileLayer attribution='&copy; <a href="https://carto.com/">CARTO</a>' url={tileUrl} />
           {locations.map((loc, i) => {
             const mc   = markerColor(loc.temperature);

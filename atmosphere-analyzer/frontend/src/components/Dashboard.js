@@ -16,7 +16,7 @@ import AlertsConfig from './dashboard/AlertsConfig';
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
-const Dashboard = () => {
+const Dashboard = ({ onBack }) => {
   const urlState = useMemo(() => readUrlParams(), []); // eslint-disable-line
 
   // Core data
@@ -47,11 +47,12 @@ const Dashboard = () => {
   );
   const [activeAlerts, setActiveAlerts] = useState([]);
 
-  const pausedRef    = useRef(false);
-  const alertCfgRef  = useRef(alertCfg);
-  const tempUnitRef  = useRef(tempUnit);
-  const prevLocsRef  = useRef({});
-  const dashRef      = useRef(null);
+  const pausedRef           = useRef(false);
+  const alertCfgRef         = useRef(alertCfg);
+  const tempUnitRef         = useRef(tempUnit);
+  const prevLocsRef         = useRef({});
+  const dashRef             = useRef(null);
+  const removedCustomIdsRef = useRef(new Set());
 
   useEffect(() => { pausedRef.current   = isPaused;  }, [isPaused]);
   useEffect(() => { alertCfgRef.current = alertCfg;  }, [alertCfg]);
@@ -123,7 +124,19 @@ const Dashboard = () => {
 
     const applyLocs = locs => {
       if (pausedRef.current) return;
-      setLocations(locs); setUpdatedAt(Date.now());
+      setLocations(prev => {
+        const serverIds = new Set(locs.map(l => l.id));
+        // Keep any custom city from previous state that the server temporarily dropped
+        // (e.g. while OWM data is still being fetched for a newly added city).
+        // Cities the user explicitly removed are tracked in removedCustomIdsRef.
+        const preserved = prev.filter(l =>
+          l.is_custom &&
+          !serverIds.has(l.id) &&
+          !removedCustomIdsRef.current.has(l.custom_id)
+        );
+        return preserved.length ? [...locs, ...preserved] : locs;
+      });
+      setUpdatedAt(Date.now());
       setLocHistory(p => {
         const n = { ...p };
         locs.forEach(loc => {
@@ -193,8 +206,14 @@ const Dashboard = () => {
     setShowSearch(false);
   }, []);
 
-  const handleRemoveCity = useCallback(async id => {
-    try { await axios.delete(`${API_URL}/api/custom-cities/${id}/`); } catch {}
+  const handleRemoveCity = useCallback(async customId => {
+    removedCustomIdsRef.current.add(customId);
+    setLocations(prev => prev.filter(l => l.custom_id !== customId));
+    try {
+      await axios.delete(`${API_URL}/api/custom-cities/${customId}/`);
+    } catch {
+      removedCustomIdsRef.current.delete(customId);
+    }
   }, []);
 
   const handleShare = useCallback(() => {
@@ -283,10 +302,10 @@ const Dashboard = () => {
   const singleChart = useMemo(() => ({
     labels: timeLabels,
     datasets: [
-      { label: `Temp (°${tempUnit})`, data: wTemps,    borderColor: '#818cf8', backgroundColor: 'rgba(129,140,248,0.05)', fill: true, tension: 0.4, borderWidth: 2, ...ptStyle(anomT, '#818cf8') },
-      { label: 'Humidity (%)',        data: wHumidity, borderColor: '#c084fc', backgroundColor: 'rgba(192,132,252,0.05)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 0, pointHoverRadius: 5 },
-      { label: 'Wind (m/s)',          data: wWind,     borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.05)',  fill: true, tension: 0.4, borderWidth: 2, pointRadius: 0, pointHoverRadius: 5 },
-      { label: 'AQI',                 data: wAir,      borderColor: '#22d3ee', backgroundColor: 'rgba(34,211,238,0.05)', fill: true, tension: 0.4, borderWidth: 2, ...ptStyle(anomA, '#22d3ee') },
+      { label: `Temp (°${tempUnit})`, data: wTemps,    borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.14)',  fill: true, tension: 0.4, borderWidth: 2.5, ...ptStyle(anomT, '#2563eb') },
+      { label: 'Humidity (%)',        data: wHumidity, borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.12)', fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 5 },
+      { label: 'Wind (m/s)',          data: wWind,     borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.10)', fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 5 },
+      { label: 'AQI',                 data: wAir,      borderColor: '#eab308', backgroundColor: 'rgba(234,179,8,0.10)',  fill: true, tension: 0.4, borderWidth: 2.5, ...ptStyle(anomA, '#eab308') },
     ],
   }), [timeLabels, wTemps, wHumidity, wWind, wAir, tempUnit, anomT, anomA]); // eslint-disable-line
 
@@ -327,13 +346,12 @@ const Dashboard = () => {
   return (
     <div className="dash" ref={dashRef}>
       <DashNav
-        connMode={connMode} selectedCity={selectedCity} locations={locations}
-        tempUnit={tempUnit} theme={theme} isPaused={isPaused}
-        onSelectCity={handleSelectCity}
-        onThemeToggle={() => setTheme(t => t === 'light' ? 'dark' : 'light')}
+        connMode={connMode} isPaused={isPaused}
         onPauseToggle={() => setIsPaused(p => !p)}
+        onBack={onBack}
+        locations={locations} selectedCity={selectedCity} tempUnit={tempUnit}
+        onSelectCity={handleSelectCity} onRemoveCity={handleRemoveCity}
         onToggleSearch={() => setShowSearch(s => !s)}
-        onRemoveCity={handleRemoveCity}
       />
 
       {showSearch && (
@@ -360,7 +378,16 @@ const Dashboard = () => {
           </div>
         )}
 
-        <StatCards wCelsius={wCelsius} wHumidity={wHumidity} wWind={wWind} wAir={wAir} tempUnit={tempUnit} />
+        <div className="details-forecast-row">
+          <div className="today-section">
+            <p className="today-label">Today's Details</p>
+            <StatCards wCelsius={wCelsius} wHumidity={wHumidity} wWind={wWind} wAir={wAir} tempUnit={tempUnit} />
+          </div>
+          <div className="today-section">
+            <p className="today-label">Upcoming Forecast</p>
+            <ForecastCard city={fcastCity} tempUnit={tempUnit} />
+          </div>
+        </div>
 
         <ChartCard
           chartData={chartData} chartOpts={chartOpts}
@@ -372,9 +399,7 @@ const Dashboard = () => {
           onExportCsv={handleExportCsv} onExportPdf={handleExportPdf} onShare={handleShare}
         />
 
-        <ForecastCard city={fcastCity} tempUnit={tempUnit} />
-
-        <div className="bottom-grid">
+        <div className="sensor-section">
           <SensorMap locations={locations} locHistory={locHistory} tempUnit={tempUnit} isDark={isDark} />
           <SidePanel locations={locations} locHistory={locHistory} events={events} tempUnit={tempUnit} updatedAt={updatedAt} />
         </div>
