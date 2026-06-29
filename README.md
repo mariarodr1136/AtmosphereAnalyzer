@@ -14,7 +14,11 @@ Live Application: https://atmosphere-analyzer-dashboard.onrender.com/
 
 ---
 
-https://github.com/user-attachments/assets/5d11f0ce-2d97-414c-8c2d-d5487a45ad1e
+
+
+https://github.com/user-attachments/assets/4dad66e3-1759-496b-95e7-82374aa0cee7
+
+
 
 ---
 
@@ -107,12 +111,11 @@ Connect with `?token=<uuid>` from `/api/auth/token/`. Omitting the token is allo
 
 ---
 
-<img width="1470" height="800" alt="Screenshot 2026-06-25 at 5 10 32 PM" src="https://github.com/user-attachments/assets/f0ffcf70-6064-491e-9e64-bceb07e854a0" />
-
+<img width="1470" height="799" alt="Screenshot 2026-06-29 at 7 21 58 PM" src="https://github.com/user-attachments/assets/d96fc2d3-09de-4857-a601-3e59fb0c8ac3" />
 
 ---
 
-<img width="1462" height="801" alt="Screenshot 2026-06-16 at 3 08 41 PM" src="https://github.com/user-attachments/assets/0a91c27e-4d84-4b6c-96a6-0da1c41f6a25" />
+<img width="1470" height="801" alt="Screenshot 2026-06-29 at 7 32 31 PM" src="https://github.com/user-attachments/assets/e12ae15c-2cb0-4737-a4b8-e2c26d2ca8b8" />
 
 
 ---
