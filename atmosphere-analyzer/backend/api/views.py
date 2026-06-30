@@ -2,6 +2,7 @@ import uuid
 from collections import defaultdict
 from datetime import timedelta
 
+from django.http import JsonResponse
 from django.db.models import Avg
 from django.db.models.functions import ExtractHour, ExtractWeekDay
 from django.utils import timezone
@@ -191,6 +192,5 @@ def delete_custom_city(request, pk):
     return Response({'deleted': True})
 
 
-@api_view(['GET'])
 def health(request):
-    return Response({'status': 'ok'})
+    return JsonResponse({'status': 'ok'})
