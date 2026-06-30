@@ -189,3 +189,8 @@ def delete_custom_city(request, pk):
     if not deleted:
         return Response({'error': 'Not found'}, status=404)
     return Response({'deleted': True})
+
+
+@api_view(['GET'])
+def health(request):
+    return Response({'status': 'ok'})

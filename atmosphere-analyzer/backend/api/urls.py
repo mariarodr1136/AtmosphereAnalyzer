@@ -7,6 +7,7 @@ from .views import (
     events,
     forecast,
     geocode,
+    health,
     heatmap,
     sensor_data,
     sensor_history,
@@ -24,4 +25,5 @@ urlpatterns = [
     path('custom-cities/',      custom_cities,      name='custom-cities'),
     path('custom-cities/<int:pk>/', delete_custom_city, name='delete-custom-city'),
     path('auth/token/',         auth_token,         name='auth-token'),
+    path('health/',             health,             name='health'),
 ]
